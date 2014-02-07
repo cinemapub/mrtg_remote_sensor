@@ -24,11 +24,12 @@ The MRTG sensor can be used to monitor a number of different variables. The PHP 
 
 ## How?
 
-* install this folder on the server you want to monitor
-* use the following MRTG lines:
+* install this folder on the server you want to monitor (eg server01)
+* in the MRTG config of your MRTG client (standard name: `mrtg.cfg` ), use `curl` to get the output of the script
 
-	Target[server01_disk1]: \`curl -s "http://server01/mrtg_sensor/?line1=diskfree&line2=disksize&path=/share"\`
+An example:
 
+	Target[server01_disk1]: $(curl -s "http://server01/mrtg_sensor/?line1=diskfree&line2=disksize&path=/share")
 	Title[server01_disk1]: SERVER01: Disk Usage
 	PageTop[server01_disk1]: < h1 >SERVER01: Disk 1 Usage< /h1 >
 	LegendI[server01_disk1]: SERVER01: Disk 1 Usage
