@@ -130,7 +130,9 @@ Class Cache {
 
 	private function mkfilename($id,$group="cache"){
 		$group=strtolower(substr($group,0,10));
-		$cacheid="$group." . substr(sha1($id),0,16);
+		$begin=preg_replace("#[^a-zA-Z0-9]*#","",$id);
+		$begin=substr($begin,0,10);
+		$cacheid="$group.$begin." . substr(sha1($id),0,16);
 		$cachefile=$this->cachedir . "/$cacheid.temp";
 		return $cachefile;
 	}
@@ -151,7 +153,7 @@ function cmdline($text,$folder=false,$cachesecs=30){
 	}
 	if($cachesecs>0){
 		$cc=New Cache;
-		$result=$cc->get_arr($line,"commandline",$cachesecs);
+		$result=$cc->get_arr($line,"bash",$cachesecs);
 		if($result)	return $result;
 	}
 	$stdout=Array();
@@ -159,7 +161,7 @@ function cmdline($text,$folder=false,$cachesecs=30){
 	trace("cmdline: [$line] = " . count($stdout) . " lines returned");
 	if($cachesecs>0 AND $stdout){
 		$cc=New Cache;
-		$cc->set_arr($line,"commandline",$stdout);
+		$cc->set_arr($line,"bash",$stdout);
 	}
 	return $stdout;
 }
