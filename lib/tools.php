@@ -154,6 +154,7 @@ function cmdline($text,$folder=false,$cachesecs=30){
 	if($cachesecs>0){
 		$cc=New Cache;
 		$result=$cc->get_arr($line,"bash",$cachesecs);
+		trace("cmdline: [$line] = " . count($result) . " from cache");
 		if($result)	return $result;
 	}
 	$stdout=Array();

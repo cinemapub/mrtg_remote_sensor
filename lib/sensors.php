@@ -3,36 +3,187 @@ include_once("tools.php");
 
 Class Sensor{
 
-	function cpu(){
+	function cpuusage($aspercent=false){
+	
+	// Ubuntu:
+	// 22:52:42 up 9 days, 14:21,  2 users,  load average: 0.00, 0.01, 0.05
+
+	// BusyBox
+	// 22:52:54 up  3:38, load average: 2.52, 2.19, 2.01
+
+		$result=cmdline("uptime");
+		$cpus=cmdline('grep "model name" /proc/cpuinfo',false,3600*24);
+		$nbcpu=count($cpus);
+		$cpumodel=$cpus[0];
+		if($result){
+			$line=$result[0];
+			list($uptime,$loads)=explode("load average:",$line,2);
+			if(!$loads)	return false;
+			list($load1,$load5,$load15)=explode(",",$loads);
+			if(!$aspercent){
+				return Array(
+					"value1" => $load5, 
+					"name1" => "Avg load over 5 min", 
+					"value2" => $load15,
+					"name2" => "Avg load over 15 min", 
+					"unit" => "processes",
+					"description" => "CPU usage - $cpumodel");
+			} else {
+				return Array(
+					"value1" => round($load5*100/$nbcpu,2), 
+					"name1" => "% used - 5 min", 
+					"value2" => round($load15*100/$nbcpu,2), 
+					"name2" => "% used - 15 min", 
+					"unit" => "%",
+					"description" => "CPU usage - $cpumodel");
+			}
+		} else {
+			return false;
+		}
 
 	}
 
-	function mem(){
+	function memusage($aspercent=false){
 	// >free
 	//               total         used         free       shared      buffers
 	//   Mem:       249184       214376        34808            0        47724
 	//  Swap:      2097144       188224      1908920
 	// Total:      2346328       402600      1943728
-
-
+		$result=cmdline("free -b -o");
+		if($result[1]){
+			$line=$result[1];
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($mem,$total,$used,$free,$percent,$shared,$buffers)=explode("\t",$line);
+			if(!$aspercent){
+				return Array(
+					"value1" => $used, 
+					"name1" => "Used bytes", 
+					"value2" => $total,
+					"name2" => "Total bytes", 
+					"unit" => "B",
+					"description" =>"Memory usage");
+			} else {
+				return Array(
+					"value1" => round($used*100/$total,2), 
+					"name1" => "Used percentage", 
+					"value2" => 100, 
+					"unit" => "%",
+					"description" => "Memory usage");
+			}
+		} else {
+			return false;
+		}
 	}
 
-	function diskusage(){
+	function diskusage($path=".",$aspercent=false){
 	// >df
 	// Filesystem           1K-blocks      Used Available Use% Mounted on
-	// /dev/sda3            1918213808  80720900 1837390508   4% /volume1		
+	// /dev/sda3            1918213808  80720900 1837390508   4% /volume1
+		if(!file_exists($path)){
+			return false;
+		}
+		$result=cmdline("df -B 1 $path");
+		if($result[1]){
+			$line=$result[1];
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
+			if(!$aspercent){
+				return Array(
+					"value1" => $used, 
+					"name1" => "Used bytes", 
+					"value2" => $blocks,
+					"name2" => "Total bytes", 
+					"unit" => "B",
+					"description" =>"Disk usage $disk");
+			} else {
+				return Array(
+					"value1" => round($used*100/$blocks,2), 
+					"name1" => "Used percentage", 
+					"value2" => 100, 
+					"unit" => "%",
+					"description" => "Disk usage $disk");
+			}
+		} else {
+			return false;
+		}
 	}
 
 	function foldersize($folder){
-
+		if(!file_exists($folder)){
+			return false;
+		}
+		$result=cmdline("du -s -B 1 $folder");
+		if($result){
+			$line=$result[0];
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($size,$path)=explode("\t",$line);
+			if(!$aspercent){
+				return Array(
+					"value1" => $size, 
+					"name1" => "folder size", 
+					"value2" => false,
+					"name2" => "", 
+					"unit" => "B",
+					"description" =>"folder size $folder");
+			} else {
+				$usage=$this->diskusage($folder);
+				$total=$usage["value2"];
+				return Array(
+					"value1" => round($size*100/$total,2), 
+					"name1" => "Used percentage", 
+					"value2" => 100, 
+					"unit" => "%",
+					"description" => "Memory usage");
+			}
+		} else {
+			return false;
+		}
 	}
 
-	function filecount($folder){
-
+	function filecount($folder,$recursive=false){
+		if(!file_exists($folder)){
+			return false;
+		}
+		$options="";
+		if(!$recursive)	$options.="-maxdepth 1 ";
+		$options.="-type f ";
+		$result=cmdline("find $folder $options | wc -l");
+		if($result){
+			$line=$result[0];
+			$nb=(int)trim($line);
+			return Array(
+				"value1" => $nb, 
+				"name1" => "number of files", 
+				"value2" => false,
+				"name2" => "", 
+				"unit" => "files",
+				"description" =>"file count [$folder]");
+		} else {
+			return false;
+		}
 	}
 
 	function foldercount($folder){
-
+		if(!file_exists($folder)){
+			return false;
+		}
+		$options="";
+		if(!$recursive)	$options.="-maxdepth 1 ";
+		$options.="-type d ";
+		$result=cmdline("find $folder $options | wc -l");
+		if($result){
+			$line=$result[0];
+			$nb=(int)trim($line);
+			return Array(
+				"value1" => $nb, 
+				"name1" => "number of subfolders", 
+				"value2" => false,
+				"name2" => "", 
+				"unit" => "folders",
+				"description" =>"folder count [$folder]");
+		} else {
+			return false;
+		}
 	}
 }
 
