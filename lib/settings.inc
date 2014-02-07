@@ -1,7 +1,7 @@
 <?php
 
-include_once("tools.inc");
-include_once("mrtg.inc");
-include_once("sensors.inc");
+include_once("tools.php");
+include_once("mrtg.php");
+include_once("sensors.php");
 
 ?>

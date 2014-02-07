@@ -1,5 +1,5 @@
 <?php
-include_once("tools.inc");
+include_once("tools.php");
 
 Class Sensor{
 
