@@ -9,7 +9,7 @@ function trace($info,$level="DEBUG"){
 		// only print info if in debug mode
 		return false;
 	}
-	$secs=round($time_pagestarted - microtime(true),2);
+	$secs=round(microtime(true) - $time_pagestarted,3);
 	if(is_array($info)){
 		echo "\n<-- $level @ ${secs}s:\n";
 		print_r($info);
@@ -22,7 +22,7 @@ function trace($info,$level="DEBUG"){
 Class Cache {
 	var $enabled=false;
 
-	function __construct($cachedir="./cache"){
+	function __construct($cachedir="cache"){
 		if(!file_exists("$cachedir/.")){
 			if(mkdir($cachedir,0666,true)){
 				trace("created cache dir [$cachedir]");
@@ -30,7 +30,7 @@ Class Cache {
 				$this->cachedir=$cachedir;
 				return true;
 			} else {
-				trace("cannot cache dir [$cachedir]","ERROR");
+				trace("cannot create dir [$cachedir]","ERROR");
 				$this->enabled=false;
 				return false;
 			}
@@ -48,15 +48,15 @@ Class Cache {
 		}
 		$cachefile=$this->mkfilename($id,$group);
 		if(!file_exists($cachefile)){
-			trace("Cache::get : no cache [$cacheid] for [$id] yet");
+			trace("Cache::get : no cache [$cachefile] yet");
 			return false;
 		}
 		// so the cache file exists
 		if((time()-filemtime($cachefile)) > $maxsecs){
-			trace("Cache::get : cache [$cacheid] for [$id] too old");
+			trace("Cache::get : cache [$cachefile] too old");
 			return false;
 		}
-		trace("Cache::get : cache [$cacheid] for [$id] is used");
+		trace("Cache::get : cache [$cachefile] OK");
 		return file_get_contents($cachefile);
 	}
 
@@ -66,15 +66,15 @@ Class Cache {
 		}
 		$cachefile=$this->mkfilename($id,$group);
 		if(!file_exists($cachefile)){
-			trace("Cache::get_arr : no cache [$cacheid] for [$id] yet");
+			trace("Cache::get_arr : cache [$cachefile] not yet");
 			return false;
 		}
 		// so the cache file exists
 		if((time()-filemtime($cachefile)) > $maxsecs){
-			trace("Cache::get_arr : cache [$cacheid] for [$id] too old");
+			trace("Cache::get_arr : cache [$cachefile] too old");
 			return false;
 		}
-		trace("Cache::get_arr : cache [$cacheid] for [$id] is used");
+		trace("Cache::get_arr : cache [$cachefile] is used");
 		return unserialize(file_get_contents($cachefile));
 	}
 
@@ -86,8 +86,8 @@ Class Cache {
 			$this->cleanup();
 		}
 		$cachefile=$this->mkfilename($id,$group);
-		trace("Cache::set : saving [$cacheid] for [$id]");
-		file_set_contents($cachefile,$value);
+		trace("Cache::set : saving [$cachefile]");
+		file_put_contents($cachefile,$value);
 		return true;
 	}
 
@@ -99,8 +99,8 @@ Class Cache {
 			$this->cleanup();
 		}
 		$cachefile=$this->mkfilename($id,$group);
-		trace("Cache::set_arr : saving [$cacheid] for [$id]");
-		file_set_contents($cachefile,serialize($array);
+		trace("Cache::set_arr : saving [$cachefile]");
+		file_put_contents($cachefile,serialize($array));
 		return true;
 	}
 
@@ -138,7 +138,7 @@ Class Cache {
 
 }
 
-function cmdline($text,$folder=false,$cachesecs=0){
+function cmdline($text,$folder=false,$cachesecs=30){
 	if($folder){
 		$path=realpath($folder);
 		if(!$path){
@@ -154,9 +154,9 @@ function cmdline($text,$folder=false,$cachesecs=0){
 		$result=$cc->get_arr($line,"commandline",$cachesecs);
 		if($result)	return $result;
 	}
-
-	$result=exec($line,$stdout);
-	trace("cmdline: [$line] => " . count($stdout) . " lines returned (return: $result)");
+	$stdout=Array();
+	$result=exec("$line",$stdout);
+	trace("cmdline: [$line] = " . count($stdout) . " lines returned");
 	if($cachesecs>0 AND $stdout){
 		$cc=New Cache;
 		$cc->set_arr($line,"commandline",$stdout);

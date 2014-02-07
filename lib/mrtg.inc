@@ -1,6 +1,7 @@
 <?php
-include_once("sensors.inc")
-include_once("tools.inc")
+include_once("sensors.inc");
+include_once("tools.inc");
+
 Class MRTGResult{
 
 	var $value1=false;
@@ -8,7 +9,7 @@ Class MRTGResult{
 	var $uptime=uptime;
 	var $name=false;
 	var $unit=false;
-	var $unit=false;
+
 	function prepare(){
 		header("Content-Type: text/plain; charset=utf-8");
 	}
