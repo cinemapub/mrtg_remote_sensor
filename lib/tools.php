@@ -15,7 +15,7 @@ function trace($info,$level="DEBUG"){
 		print_r($info);
 		echo "\n-->\n";
 	} else {
-		echo "\n<-- $level @ ${secs}s: " . htmlspecialchars($info) . " -->\n";
+		printf("\n<-- %s @ %06.3fs: %s -->\n",$level,$secs,htmlspecialchars($info));
 	}
 }
 
@@ -164,6 +164,17 @@ function cmdline($text,$folder=false,$cachesecs=30){
 		$cc->set_arr($line,"bash",$stdout);
 	}
 	return $stdout;
+}
+
+function getparam($name,$default=false){
+	if(isset($_GET[$name])){
+		$value=$_GET[$name];
+		trace("getparam: [$name] = [" . htmlspecialchars(substr($value,0,20)) . "]");
+		return $value;
+	}
+	$value=$default;
+	trace("getparam: [$name] = [" . htmlspecialchars(substr($value,0,20)) . "] (default)");
+	return $value;
 }
 
 ?>
