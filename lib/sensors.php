@@ -12,8 +12,12 @@ Class Sensor{
 	// 22:52:54 up  3:38, load average: 2.52, 2.19, 2.01
 
 		$result=cmdline("uptime");
-		$cpus=cmdline('grep "model name" /proc/cpuinfo',false,3600*24);
+		trace($result);
+		$cpus=cmdline('grep cpu /proc/stat | grep -v "cpu "',false,3600*24);
+		//$cpus=cmdline('grep "model name" /proc/cpuinfo',false,3600*24);
+		trace($cpus);
 		$nbcpu=count($cpus);
+		if(!$nbcpu)	$nbcpu=1;
 		$cpumodel=$cpus[0];
 		if($result){
 			$line=$result[0];
@@ -27,7 +31,7 @@ Class Sensor{
 					"value2" => $load15,
 					"name2" => "Avg load over 15 min", 
 					"unit" => "processes",
-					"description" => "CPU usage - $cpumodel");
+					"description" => "CPU usage (5/15 min)");
 			} else {
 				return Array(
 					"value1" => round($load5*100/$nbcpu,2), 
@@ -35,7 +39,7 @@ Class Sensor{
 					"value2" => round($load15*100/$nbcpu,2), 
 					"name2" => "% used - 15 min", 
 					"unit" => "%",
-					"description" => "CPU usage - $cpumodel");
+					"description" => "CPU usage % (5/15 min)");
 			}
 		} else {
 			return false;
@@ -49,9 +53,9 @@ Class Sensor{
 	//   Mem:       249184       214376        34808            0        47724
 	//  Swap:      2097144       188224      1908920
 	// Total:      2346328       402600      1943728
-		$result=cmdline("free -b -o");
-		if($result[1]){
-			$line=$result[1];
+		$result=cmdline("free | grep Mem");
+		if($result[0]){
+			$line=trim($result[0]);
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($mem,$total,$used,$free,$percent,$shared,$buffers)=explode("\t",$line);
 			if(!$aspercent){
@@ -61,28 +65,31 @@ Class Sensor{
 					"value2" => $total,
 					"name2" => "Total bytes", 
 					"unit" => "B",
-					"description" =>"Memory usage");
+					"description" =>"Memory usage (used/total)");
 			} else {
 				return Array(
 					"value1" => round($used*100/$total,2), 
 					"name1" => "Used percentage", 
 					"value2" => 100, 
 					"unit" => "%",
-					"description" => "Memory usage");
+					"description" => "Memory usage (%)");
 			}
 		} else {
 			return false;
 		}
 	}
 
-	function diskusage($path=".",$aspercent=false){
+	function diskusage($path=false,$aspercent=false){
 	// >df
 	// Filesystem           1K-blocks      Used Available Use% Mounted on
 	// /dev/sda3            1918213808  80720900 1837390508   4% /volume1
+		if(!$path)	$path=".";
 		if(!file_exists($path)){
+			trace("diskusage: cannot find [$path]");
 			return false;
 		}
-		$result=cmdline("df -B 1 $path");
+		$result=cmdline("df -k $path");
+		trace($result);
 		if($result[1]){
 			$line=$result[1];
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -94,14 +101,14 @@ Class Sensor{
 					"value2" => $blocks,
 					"name2" => "Total bytes", 
 					"unit" => "B",
-					"description" =>"Disk usage $disk");
+					"description" =>"Disk Usage (used/total) [$disk]");
 			} else {
 				return Array(
 					"value1" => round($used*100/$blocks,2), 
 					"name1" => "Used percentage", 
 					"value2" => 100, 
 					"unit" => "%",
-					"description" => "Disk usage $disk");
+					"description" => "Disk Usage % [$disk]");
 			}
 		} else {
 			return false;
@@ -109,10 +116,12 @@ Class Sensor{
 	}
 
 	function foldersize($folder){
+	// 1043015852032   /share/MASTER/MASTER/
 		if(!file_exists($folder)){
+			trace("foldersize: cannot find [$path]");
 			return false;
 		}
-		$result=cmdline("du -s -B 1 $folder");
+		$result=cmdline("du -s -B 1 $folder",false,60*15);
 		if($result){
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -124,7 +133,7 @@ Class Sensor{
 					"value2" => false,
 					"name2" => "", 
 					"unit" => "B",
-					"description" =>"folder size $folder");
+					"description" =>"Folder Size [$folder]");
 			} else {
 				$usage=$this->diskusage($folder);
 				$total=$usage["value2"];
@@ -133,7 +142,7 @@ Class Sensor{
 					"name1" => "Used percentage", 
 					"value2" => 100, 
 					"unit" => "%",
-					"description" => "Memory usage");
+					"description" => "Folder Size [$folder]");
 			}
 		} else {
 			return false;
@@ -183,6 +192,16 @@ Class Sensor{
 				"description" =>"folder count [$folder]");
 		} else {
 			return false;
+		}
+	}
+	
+	function uptime(){
+		$result=cmdline("</proc/uptime awk '{print $1}'");
+		$nbsecs=$result[0];
+		if($nbsecs > 60*60*24){
+			return round($nbsecs/(60*60*24),1) . " days";
+		} else {
+			return round($nbsecs/(60*60),1) . " hours";
 		}
 	}
 }
