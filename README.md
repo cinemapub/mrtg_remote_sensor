@@ -29,11 +29,10 @@ The MRTG sensor can be used to monitor a number of different variables. The PHP 
 
 An example:
 
-	Target[server01_disk1]: $(curl -s "http://server01/mrtg_sensor/?line1=diskfree&line2=disksize&path=/share")
-	Title[server01_disk1]: SERVER01: Disk Usage
-	PageTop[server01_disk1]: < h1 >SERVER01: Disk 1 Usage< /h1 >
-	LegendI[server01_disk1]: SERVER01: Disk 1 Usage
-	ShortLegend[server01_disk1]: B  
+	Target[server01_disk1]: `curl -s "http://server01/mrtg_sensor/?key=cpu`
+	Title[server01_disk1]: SERVER01: CPU Usage
+	PageTop[server01_disk1]: < h1 >SERVER01: CPU Usage< /h1 >
+	LegendI[server01_disk1]: SERVER01: CPU Usage
 
 the script will return with the standard 4 text lines that MRTG requires:
 
@@ -44,8 +43,17 @@ the script will return with the standard 4 text lines that MRTG requires:
 
 and will add some more lines (which are ignored by MRTG):
 
-5. the unit of the result (MB, file/sec)
-6. the URL for configuring
+5. the URL for configuring
+
+or, when the URL for configuring is used
+
+6. the full MRTG to be used:
+	* Target
+	* Title
+	* PageTop
+	* Legend
+	* ShortLegend
+	* Options
 
 Example:
 	
@@ -53,5 +61,4 @@ Example:
 	62
 	1d, 12h 35 m
 	server01
-	B
-	http://server01/mrtg_sensor/config.php?line1=diskfree&line2=disksize&path=/share
+	http://server01/mrtg_sensor/?key=cpu
