@@ -9,49 +9,24 @@ if($percent)	$key.="%";
 $param=getparam("param");
 $config=getparam("config");
 
-$s=New MRTGResult;
-$s->prepare();
+$s=New Sensor;
 
 switch($key){
-case "cpu":
-	$values=Sensor::cpuusage();
-	$s->set($values["value1"],$values["value2"],$values["description"]);
-	break;
-case "cpu%":
-	$values=Sensor::cpuusage(true);
-	$s->set($values["value1"],$values["value2"],$values["description"]);
-	break;
+case "cpu":		$values=$s->cpuusage();				break;
+case "cpu%":	$values=$s->cpuusage(true);			break;
 	
-case "mem":
-	$values=Sensor::memusage();
-	$s->set($values["value1"],$values["value2"],$values["description"]);
-	break;
-case "mem%":
-	$values=Sensor::memusage(true);
-	$s->set($values["value1"],$values["value2"],$values["description"]);
-	break;
+case "mem":		$values=$s->memusage();				break;
+case "mem%":	$values=$s->memusage(true);			break;
 	
-case "disk":
-	$values=Sensor::diskusage($param);
-	$s->set($values["value1"],$values["value2"],$values["description"] );
-	break;
-case "disk%":
-	$values=Sensor::diskusage($param,true);
-	$s->set($values["value1"],$values["value2"],$values["description"] );
-	break;
+case "disk":	$values=$s->diskusage($param);		break;
+case "disk%":	$values=$s->diskusage($param,true);	break;
 	
-case "folder":
-	$values=Sensor::foldersize($param);
-	$s->set($values["value1"],$values["value2"],$values["description"] );
-	break;
+case "folder":	$values=$s->foldersize($param);		break;
 	
 default:
-	$s->set(0,0);
 }
-if($config){
-	$s->output(true);
-} else {
-	$s->output();
+if($config){	$s->mrtg_output($values,true);
+} else {		$s->mrtg_output($values);
 }
 
 ?>
