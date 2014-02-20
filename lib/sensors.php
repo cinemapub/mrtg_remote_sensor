@@ -8,6 +8,7 @@ Class Sensor{
 	function __construct(){
 		$urlparts=Array();
 		$nameparts[]=$_SERVER['SERVER_NAME'];
+		$this->params["server"]=$_SERVER['SERVER_NAME'];
 		$key=getparam("key","cpu");
 		$nameparts[]=$key;
 		$urlparts[]="key=$key";
@@ -36,7 +37,7 @@ Class Sensor{
 		echo trim($params["value1"]) . "\n";
 		echo trim($params["value2"]) . "\n";
 		echo trim($params["uptime"]) . "\n";
-		echo trim($params["name"]) . "\n";
+		echo trim($params["server"]) . "\n";
 		if(!$withconfig){
 			echo $params["cfgurl"] . "\n";
 		} else {
@@ -187,14 +188,14 @@ Class Sensor{
 			trace("foldersize: cannot find [$path]");
 			return false;
 		}
-		$result=cmdline("du -s -B 1 $folder",false,60*15);
+		$result=cmdline("du -s -k $folder",false,60*15);
 		if($result){
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($size,$path)=explode("\t",$line);
 			if(!$aspercent){
 				$this->params["value1"]=$size;
-				$this->params["value2"]="";
+				$this->params["value2"]="0";
 				$this->params["name1"]="Folder size";
 				$this->params["name2"]="";
 				$this->params["description"]="Folder Size [$folder]";
@@ -204,7 +205,7 @@ Class Sensor{
 				$this->params["mrtg_kmg"]="k,M,G,T,P";
 			} else {
 				$this->params["value1"]=$size;
-				$this->params["value2"]="";
+				$this->params["value2"]="0";
 				$this->params["name1"]="Folder size";
 				$this->params["name2"]="";
 				$this->params["description"]="Folder Size [$folder]";
@@ -273,6 +274,12 @@ Class Sensor{
 		} else {
 			return round($nbsecs/(60*60),1) . " hours";
 		}
+	}
+	
+	function parse_cmd($cmd,$folder=false,$cachesecs=300,$linenr=1,$fieldnr=1){
+	// to replace awk, tail, head, ...
+	$result=cmdline($cmd,$folder,$cachesecs);
+	
 	}
 }
 
