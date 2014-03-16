@@ -22,6 +22,11 @@ case "disk":	$values=$s->diskusage($param);		break;
 case "disk%":	$values=$s->diskusage($param,true);	break;
 	
 case "folder":	$values=$s->foldersize($param);		break;
+case "foldersize":	$values=$s->foldersize($param);		break;
+
+case "filecount":	$values=$s->filecount($param);		break;
+
+case "foldercount":	$values=$s->foldercount($param);	break;
 	
 default:
 }

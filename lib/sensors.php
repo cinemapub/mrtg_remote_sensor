@@ -231,13 +231,16 @@ Class Sensor{
 		if($result){
 			$line=$result[0];
 			$nb=(int)trim($line);
-			return Array(
-				"value1" => $nb, 
-				"name1" => "number of files", 
-				"value2" => false,
-				"name2" => "", 
-				"unit" => "files",
-				"description" =>"file count [$folder]");
+			$this->params["value1"]=$nb;
+			$this->params["value2"]="0";
+			$this->params["name1"]="File count";
+			$this->params["name2"]="";
+			$this->params["description"]="File count [$folder]";
+			$this->params["mrtg_unit"]="file(s)";
+			$this->params["mrtg_options"].=",gauge,noo,nopercent";
+			$this->params["mrtg_maxbytes"]=1000000000;
+			$this->params["mrtg_kmg"]="k,M,G,T,P";
+			return $this->params;
 		} else {
 			return false;
 		}
