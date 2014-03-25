@@ -17,6 +17,11 @@ Class Sensor{
 			$urlparts[]="param=$param";
 			$nameparts[]=basename($param);
 			}
+		$options=getparam("options");
+		if($options){
+			$urlparts[]="options=$options";
+			$nameparts[]=substr(md5($options),0,4);
+			}
 		$percent=getparam("percent");
 		if($percent){
 			$urlparts[]="percent=1";
@@ -182,7 +187,7 @@ Class Sensor{
 		}
 	}
 
-	function foldersize($folder){
+	function foldersize($folder,$options){
 	// 1043015852032   /share/MASTER/MASTER/
 		if(!file_exists($folder)){
 			trace("foldersize: cannot find [$path]");
@@ -220,14 +225,16 @@ Class Sensor{
 		}
 	}
 
-	function filecount($folder,$recursive=false){
+	function filecount($folder,$options){
 		if(!file_exists($folder)){
 			return false;
 		}
-		$options="";
-		if(!$recursive)	$options.="-maxdepth 1 ";
-		$options.="-type f ";
-		$result=cmdline("find $folder $options | wc -l");
+		$findopt="";
+		$params=$this->parse_options($options);
+		if(!$params["recursive"])	$findopt.="-maxdepth 1 ";
+		if($params["mtime"]) $findopt.="-mtime " . $params["mtime"] . " ";
+		$findopt.="-type f ";
+		$result=cmdline("find $folder $findopt | wc -l");
 		if($result){
 			$line=$result[0];
 			$nb=(int)trim($line);
@@ -246,14 +253,16 @@ Class Sensor{
 		}
 	}
 
-	function foldercount($folder){
+	function foldercount($folder,$options){
 		if(!file_exists($folder)){
 			return false;
 		}
-		$options="";
-		if(!$recursive)	$options.="-maxdepth 1 ";
-		$options.="-type d ";
-		$result=cmdline("find $folder $options | wc -l");
+		$findopt="";
+		$params=$this->parse_options($options);
+		if(!$params["recursive"])	$findopt.="-maxdepth 1 ";
+		if($params["mtime"]) $findopt.="-mtime " . $params["mtime"] . " ";
+		$findopt.="-type d ";
+		$result=cmdline("find $folder $findopt | wc -l");
 		if($result){
 			$line=$result[0];
 			$nb=(int)trim($line);
@@ -268,6 +277,24 @@ Class Sensor{
 			return false;
 		}
 	}
+
+	function parse_options($options){
+		if(!$options)	return false;
+		$results=Array();
+		trace("parse_options: $options");
+		$params=explode(",",$options);
+		foreach($params as $param){
+			if(strstr($param,"=")){
+				list($key,$val)=explode("=",$param,2);
+			} else {
+				$key=$param;
+				$val=$param;
+			}
+			$result[$key]=$val;
+			trace("Option: [$key] = [$val]");
+		}
+		return $result;	
+	}
 	
 	function uptime(){
 		$result=cmdline("</proc/uptime awk '{print $1}'");
@@ -280,8 +307,8 @@ Class Sensor{
 	}
 	
 	function parse_cmd($cmd,$folder=false,$cachesecs=300,$linenr=1,$fieldnr=1){
-	// to replace awk, tail, head, ...
-	$result=cmdline($cmd,$folder,$cachesecs);
+		// to replace awk, tail, head, ...
+		$result=cmdline($cmd,$folder,$cachesecs);
 	
 	}
 }
