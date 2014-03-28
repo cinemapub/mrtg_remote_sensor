@@ -12,6 +12,7 @@ $options=getparam("options");
 
 $s=New Sensor;
 
+$values=false;
 switch($key){
 	case "cpu":		$values=$s->cpuusage();				break;
 	case "cpu%":	$values=$s->cpuusage(true);			break;
@@ -22,6 +23,8 @@ switch($key){
 	case "disk":	$values=$s->diskusage($param);		break;
 	case "disk%":	$values=$s->diskusage($param,true);	break;
 		
+	case "proc":		$values=$s->proccount($param);        break;
+
 	case "folder":
 	case "foldersize":	$values=$s->foldersize($param,$options);	break;
 
@@ -29,12 +32,16 @@ switch($key){
 
 	case "foldercount":	$values=$s->foldercount($param,$options);	break;
 		
-	default:
+	default: // unknown key
 }
-if($config){
-	$s->mrtg_output($values,true);
+if($values){
+	if($config){
+		$s->mrtg_output($values,true);
+	} else {
+		$s->mrtg_output($values);
+	}
 } else {
-	$s->mrtg_output($values);
+	echo "Unknown key [$key]";
 }
 
 ?>

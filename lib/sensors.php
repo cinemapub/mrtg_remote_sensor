@@ -233,24 +233,59 @@ Class Sensor{
 		$params=$this->parse_options($options);
 		if(!$params["recursive"])	$findopt.="-maxdepth 1 ";
 		if($params["mtime"]) $findopt.="-mtime " . $params["mtime"] . " ";
+		if($params["name"]) $findopt.="-name " . $params["name"] . " ";
 		$findopt.="-type f ";
 		$result=cmdline("find $folder $findopt | wc -l");
 		if($result){
 			$line=$result[0];
 			$nb=(int)trim($line);
+			$desc="File count [$folder]";
+			if($options)	$desc.=" [$options]";
 			$this->params["value1"]=$nb;
 			$this->params["value2"]="0";
-			$this->params["name1"]="File count";
+			$this->params["name1"]=$desc;
 			$this->params["name2"]="";
-			$this->params["description"]="File count [$folder]";
+			$this->params["description"]=$desc;
 			$this->params["mrtg_unit"]="file(s)";
 			$this->params["mrtg_options"].=",gauge,noo,nopercent";
-			$this->params["mrtg_maxbytes"]=1000000000;
-			$this->params["mrtg_kmg"]="k,M,G,T,P";
+			$this->params["mrtg_maxbytes"]=1000000;
+			$this->params["mrtg_kmg"]=",k,M,G,T,P";
 			return $this->params;
 		} else {
 			return false;
 		}
+	}
+	
+	function proccount($filter){
+		if($filter){
+			$filter=$this->sanitize($filter);
+			$result=cmdline("ps | grep \"$filter\" | wc -l");
+		} else {
+			$result=cmdline("ps | wc -l");
+		}
+                if($result){
+			$desc="Process count";
+			if($filter)	$desc.=" [$filter]";
+                        $line=$result[0];
+                        $nb=(int)trim($line);
+			if($filter){
+				$nb=$nb-1; // remove the 'grep' process we created ourselves
+			} else {
+				$nb=$nb-3; // remove 1st line, and our own 'ps' and 'wc' process
+			}
+                        $this->params["value1"]=$nb;
+                        $this->params["value2"]="0";
+                        $this->params["name1"]=$desc;
+                        $this->params["name2"]="";
+                        $this->params["description"]=$desc;
+                        $this->params["mrtg_unit"]="proc";
+                        $this->params["mrtg_options"].=",gauge,noo,nopercent";
+                        $this->params["mrtg_maxbytes"]=1000000;
+                        $this->params["mrtg_kmg"]=",k,M,G,T,P";
+                        return $this->params;
+                } else {
+                        return false;
+                }
 	}
 
 	function foldercount($folder,$options){
@@ -261,18 +296,24 @@ Class Sensor{
 		$params=$this->parse_options($options);
 		if(!$params["recursive"])	$findopt.="-maxdepth 1 ";
 		if($params["mtime"]) $findopt.="-mtime " . $params["mtime"] . " ";
+		if($params["name"]) $findopt.="-name " . $params["name"] . " ";
 		$findopt.="-type d ";
 		$result=cmdline("find $folder $findopt | wc -l");
 		if($result){
 			$line=$result[0];
 			$nb=(int)trim($line);
-			return Array(
-				"value1" => $nb, 
-				"name1" => "number of subfolders", 
-				"value2" => false,
-				"name2" => "", 
-				"unit" => "folders",
-				"description" =>"folder count [$folder]");
+			$desc="Folder count [$folder]";
+			if($options)	$desc.=" [$options]";
+			$this->params["value1"]=$nb;
+			$this->params["value2"]="0";
+			$this->params["name1"]=$desc;
+			$this->params["name2"]="";
+			$this->params["description"]=$desc;
+			$this->params["mrtg_unit"]="folder(s)";
+			$this->params["mrtg_options"].=",gauge,noo,nopercent";
+			$this->params["mrtg_maxbytes"]=1000000;
+			$this->params["mrtg_kmg"]=",k,M,G,T,P";
+			return $this->params;
 		} else {
 			return false;
 		}
@@ -284,6 +325,7 @@ Class Sensor{
 		trace("parse_options: $options");
 		$params=explode(",",$options);
 		foreach($params as $param){
+			$param=$this->sanitize($param);
 			if(strstr($param,"=")){
 				list($key,$val)=explode("=",$param,2);
 			} else {
@@ -310,6 +352,14 @@ Class Sensor{
 		// to replace awk, tail, head, ...
 		$result=cmdline($cmd,$folder,$cachesecs);
 	
+	}
+
+
+	function sanitize($text){
+		// remove all nasty stuff before passing to bash/sh
+		$result=$text;
+		$result=str_replace(Array(";",'"'),"",$result);
+		return $result;
 	}
 }
 
