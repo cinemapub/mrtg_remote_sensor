@@ -84,23 +84,23 @@ Class Sensor{
 			if(!$loads)	return false;
 			list($load1,$load5,$load15)=explode(",",$loads);
 			if(!$aspercent){
-				$this->params["value1"]=$load5*1000/$nbcpu;
-				$this->params["value2"]=$load15*1000/$nbcpu;
+				$this->params["value1"]=$load5*100;
+				$this->params["value2"]=$load15*100;
 				$this->params["name1"]="Avg load over 5 min";
 				$this->params["name2"]="Avg load over 15 min";
-				$this->params["description"]="CPU usage (5/15 min)";
+				$this->params["description"]="CPU load (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="load";
 				$this->params["mrtg_options"].=",gauge";
-				$this->params["mrtg_maxbytes"]="1000";
+				$this->params["mrtg_maxbytes"]="10000";
 			} else {
 				$this->params["value1"]=round($load5*100/$nbcpu,2);
 				$this->params["value2"]=round($load15*100/$nbcpu,2);
 				$this->params["name1"]="% used - 5 min";
 				$this->params["name2"]="% used - 15 min";
-				$this->params["description"]="CPU usage % (5/15 min)";
+				$this->params["description"]="CPU usage % (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
-				$this->params["mrtg_maxbytes"]="100";
+				$this->params["mrtg_maxbytes"]="1000";
 			}
 			return $this->params;
 		} else {
@@ -153,7 +153,7 @@ Class Sensor{
 		if(!$path)	$path=".";
 		if(!file_exists($path)){
 			trace("diskusage: cannot find [$path]");
-			return false;
+			//return false;
 		}
 		$result=cmdline("df -k $path");
 		trace($result);
