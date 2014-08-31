@@ -189,8 +189,9 @@ Class Sensor{
 
 	function foldersize($folder,$options){
 	// 1043015852032   /share/MASTER/MASTER/
+		trace("foldersize:  checking [$folder]");
 		if(!file_exists($folder)){
-			trace("foldersize: cannot find [$path]");
+			trace("foldersize: cannot find [$folder]");
 			return false;
 		}
 		$result=cmdline("du -s -k $folder",false,60*15);
