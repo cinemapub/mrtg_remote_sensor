@@ -11,6 +11,7 @@ $options=getparam("options");
 $s=New Sensor;
 
 $values=false;
+$debug=getparam("debug",false);
 switch($key){
 	case "cpu":	$values=$s->cpuusage();				break;
 	case "cpu%":  	$values=$s->cpuusage(true);			break;
@@ -29,8 +30,10 @@ switch($key){
 	case "filecount":	$values=$s->filecount($param,$options);		break;
 
 	case "foldercount":	$values=$s->foldercount($param,$options);	break;
+	
+	case "pingtime":	$values=$s->pingtime($param);	break;
 		
-	default: // unknown key
+	default: 	echo "Unknown key [$key]";
 }
 if($values){
 	if($config){
@@ -39,7 +42,7 @@ if($values){
 		$s->mrtg_output($values);
 	}
 } else {
-	echo "Unknown key [$key]";
+	echo "Key [$key] has no results";
 }
 
 ?>

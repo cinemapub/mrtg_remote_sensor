@@ -289,6 +289,31 @@ Class Sensor{
                 }
 	}
 
+	function pingtime($address,$port=80){
+		if(!$address)	return false;
+		for($i=0;$i<4;$i++){
+			$result[$i]=$this->tcpping($address,$port);
+		}
+                if($result){
+                	print_r($results);
+			$desc="ping time to $address:$port";
+			$min=min($result);
+			$max=max($result);
+                        $this->params["value1"]=(int)$min;
+                        $this->params["value2"]=(int)$max;
+                        $this->params["name1"]="MIN $desc";
+                        $this->params["name2"]="MAX $desc";
+                        $this->params["description"]=$desc;
+                        $this->params["mrtg_unit"]="sec";
+                        $this->params["mrtg_options"].=",gauge,nopercent";
+                        $this->params["mrtg_maxbytes"]=1000000000;
+                        $this->params["mrtg_kmg"]="u,m,,k,M,G";
+                        return $this->params;
+                } else {
+                        return false;
+                }
+	}
+
 	function foldercount($folder,$options){
 		if(!file_exists($folder)){
 			return false;
@@ -319,6 +344,8 @@ Class Sensor{
 			return false;
 		}
 	}
+
+	// ---------- INTERNAL FUNCTIONS
 
 	function parse_options($options){
 		if(!$options)	return false;
@@ -362,6 +389,21 @@ Class Sensor{
 		$result=str_replace(Array(";",'"'),"",$result);
 		return $result;
 	}
+	
+	function tcpping($ip,$port){
+		$timeout=4;
+		$t1 = microtime(true); 
+		$fP = fSockOpen($ip, $port, $errno, $errstr, $timeout); 
+		if (!$fP) { 
+			trace("tcpping: cannot connect to $ip:$port - $errstr");
+			return 6666; 
+			}
+		$t2 = microtime(true); 
+		//trace("[$ip:$port] - $t1 - $t2");
+		return round((($t2 - $t1) * 1000000)); 
+	}
 }
+
+
 
 ?>

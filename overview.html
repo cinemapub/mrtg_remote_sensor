@@ -7,19 +7,23 @@
 <form target='results' method='get' action="index.php">
 Key: 
 <select name='key'>
-<option>cpu</option>
-<option>cpu%</option>
-<option>proc</option>
-<option>mem</option>
-<option>mem%</option>
-<option>disk</option>
-<option>foldersize</option>
-<option>foldercount</option>
-<option>filecount</option>
+	<option>cpu</option>
+	<option>cpu%</option>
+	<option>proc</option>
+	<option>mem</option>
+	<option>mem%</option>
+	<option>disk</option>
+	<option>foldersize</option>
+	<option>foldercount</option>
+	<option>filecount</option>
+	<option>pingtime</option>
 </select><br />
-Param: <input type="text" name="param" /><br />
-Options: <input type="text" name="options" /><br />
-Config:<input type="checkbox" name="config" value="1" /><br />
+Param: 
+	<input type="text" name="param" /><br />
+Options: 
+	<input type="text" name="options" /><br />
+Config:
+	<input type="checkbox" name="config" value="1" /><br />
 <input type="submit" value="Show!" />
 </form>
 <iframe name="results" style="width: 800; height: 400"></iframe>
