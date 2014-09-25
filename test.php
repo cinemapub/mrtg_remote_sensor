@@ -1,8 +1,8 @@
 <?php
 include("lib/settings.inc");
+$debug=true;
 $s=New MRTGResult;
 $s->prepare();
-$debug=true;
 trace("Running as:");
 print_r(posix_getpwuid(posix_getuid()));
 

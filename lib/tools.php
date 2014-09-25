@@ -15,7 +15,8 @@ function trace($info,$level="DEBUG"){
 		print_r($info);
 		echo "\n-->\n";
 	} else {
-		printf("\n<-- %s @ %06.3fs: %s -->\n",$level,$secs,htmlspecialchars($info));
+		$info=preg_replace('#([^-])([<>])([^-])#','\1 \2 \3',$info);
+		printf("\n<-- %s @ %06.3fs: %s -->\n",$level,$secs,$info);
 	}
 }
 
@@ -24,7 +25,7 @@ Class Cache {
 
 	function __construct($cachedir="cache"){
 		if(!file_exists("$cachedir/.")){
-			if(mkdir($cachedir,0666,true)){
+			if(mkdir($cachedir,0777,true)){
 				trace("created cache dir [$cachedir]");
 				$this->enabled=true;
 				$this->cachedir=$cachedir;
@@ -52,11 +53,12 @@ Class Cache {
 			return false;
 		}
 		// so the cache file exists
-		if((time()-filemtime($cachefile)) > $maxsecs){
-			trace("Cache::get : cache [$cachefile] too old");
+		$age_secs=(time()-filemtime($cachefile));
+		if( $age_secs > $maxsecs){
+			trace("Cache::get : cache [$cachefile] too old - $age_secs > $maxsecs");
 			return false;
 		}
-		trace("Cache::get : cache [$cachefile] OK");
+		trace("Cache::get : cache [$cachefile] OK - $age_secs <= $maxsecs");
 		return file_get_contents($cachefile);
 	}
 
@@ -66,15 +68,16 @@ Class Cache {
 		}
 		$cachefile=$this->mkfilename($id,$group);
 		if(!file_exists($cachefile)){
-			trace("Cache::get_arr : cache [$cachefile] not yet");
+			trace("Cache::get_arr : cache [$cachefile] not found");
 			return false;
 		}
 		// so the cache file exists
-		if((time()-filemtime($cachefile)) > $maxsecs){
-			trace("Cache::get_arr : cache [$cachefile] too old");
+		$age_secs=(time()-filemtime($cachefile));
+		if( $age_secs > $maxsecs){
+			trace("Cache::get_arr : cache [$cachefile] too old - $age_secs > $maxsecs");
 			return false;
 		}
-		trace("Cache::get_arr : cache [$cachefile] is used");
+		trace("Cache::get_arr : cache [$cachefile] OK - $age_secs <= $maxsecs");
 		return unserialize(file_get_contents($cachefile));
 	}
 
