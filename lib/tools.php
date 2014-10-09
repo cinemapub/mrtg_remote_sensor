@@ -181,4 +181,15 @@ function getparam($name,$default=false){
 	return $value;
 }
 
+function preg_find($pattern,$subject){
+	preg_match($pattern,$subject,$matches);
+	if($matches){
+		trace($matches);
+		return $matches[0][1];
+	} else {
+		trace("preg_find: $pattern not found");
+		return false;
+	}
+}
+
 ?>

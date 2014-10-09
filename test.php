@@ -1,18 +1,23 @@
 <?php
 include("lib/settings.inc");
 $debug=true;
-$s=New MRTGResult;
-$s->prepare();
-trace("Running as:");
-print_r(posix_getpwuid(posix_getuid()));
+//trace("Running as:");
+//print_r(posix_getpwuid(posix_getuid()));
+$s=New Sensor();
+$ss=New OSSensor();
+//trace(getparam("test","ok"));
 
-trace(getparam("test","ok"));
+//print_r(cmdline("whoami"));
+trace($ss->battery());
+echo "---------------- DISK";
+print_r($s->diskusage("."));
+echo "---------------- CPU";
+print_r($s->cpuusage(true));
+echo "---------------- MEM";
+print_r($s->memusage());
+print_r($s->foldersize("cache"));
+print_r($s->foldercount("."));
+print_r($s->filecount(".",true));
 
-print_r(cmdline("whoami"));
-print_r(Sensor::diskusage("."));
-print_r(Sensor::cpuusage(true));
-print_r(Sensor::memusage());
-print_r(Sensor::foldersize("cache"));
-print_r(Sensor::foldercount("."));
-print_r(Sensor::filecount(".",true));
+
 ?>

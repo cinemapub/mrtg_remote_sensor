@@ -6,6 +6,7 @@ Class Sensor{
 	var $params=Array();
 	
 	function __construct(){
+		$ss=New OSSensor();
 		$urlparts=Array();
 		$nameparts[]=$_SERVER['SERVER_NAME'];
 		$this->params["server"]=$_SERVER['SERVER_NAME'];
@@ -32,7 +33,7 @@ Class Sensor{
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
 		$urlparts[]="config=1";
 		$this->params["cfgurl"]=$url . "?" . implode("&",$urlparts);
-		$this->params["uptime"]=$this->uptime();
+		$this->params["uptime"]=$ss->uptime();
 		$this->params["mrtg_options"]="growright,nobanner";
 		$this->params["mrtg_kmg"]=",k,M,G,T,P";
 		}
@@ -47,6 +48,7 @@ Class Sensor{
 			echo $params["cfgurl"] . "\n";
 		} else {
 			$name=$params["mrtg_name"];
+			$name=str_replace("%","p",$name);
 			echo "#### MRTG CONFIG $name ####\n";
 			echo "Target[$name]: `curl -s \"$params[url]\"`\n";
 			echo "Title[$name]: $params[description]\n";
@@ -70,19 +72,20 @@ Class Sensor{
 	// BusyBox
 	// 22:52:54 up  3:38, load average: 2.52, 2.19, 2.01
 
-		$result=cmdline("uptime");
-		trace($result);
-		$cpus=cmdline('grep cpu /proc/stat | grep -v "cpu "',false,3600*24);
+	// MacOSX  Darwin
+	// 20:57  up 9 days, 20:41, 2 users, load averages: 1.75 1.74 1.57
+
+		//$result=cmdline("uptime");
+		$ss=New OSSensor();
+		$result=$ss->cpuload();
+		//trace($result);
+		//$cpus=cmdline('grep cpu /proc/stat | grep -v "cpu "',false,3600*24);
 		//$cpus=cmdline('grep "model name" /proc/cpuinfo',false,3600*24);
-		trace($cpus);
-		$nbcpu=count($cpus);
-		if(!$nbcpu)	$nbcpu=1;
-		$cpumodel=$cpus[0];
+		//trace($cpus);
 		if($result){
-			$line=$result[0];
-			list($uptime,$loads)=explode("load average:",$line,2);
-			if(!$loads)	return false;
-			list($load1,$load5,$load15)=explode(",",$loads);
+			$load1=$result["1min"];
+			$load5=$result["5min"];
+			$load15=$result["15min"];
 			if(!$aspercent){
 				$this->params["value1"]=$load5*100;
 				$this->params["value2"]=$load15*100;
@@ -93,6 +96,7 @@ Class Sensor{
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]="10000";
 			} else {
+				$nbcpu=$ss->cpucount();
 				$this->params["value1"]=round($load5*100/$nbcpu,2);
 				$this->params["value2"]=round($load15*100/$nbcpu,2);
 				$this->params["name1"]="% used - 5 min";
@@ -139,6 +143,115 @@ Class Sensor{
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
 				$this->params["mrtg_maxbytes"]=100;
+			}
+			return $this->params;
+		} else {
+			return false;
+		}
+	}
+
+	function battery($type=""){
+		/*
+		Array
+		(
+		    [battery_mamp] =>  319
+		    [battery_capacity] =>  6214
+		    [battery_charge] =>  6151
+		    [battery_charge_%] => 0.99
+		    [battery_cycles] =>  22
+		    [battery_health] =>  Normal
+		    [battery_present] => 1
+		    [battery_mvolt] => 12880
+		    [charger_busy] => 1
+		    [charger_done] => 0
+		    [charger_present] => 1
+		    [charger_watt] =>  85
+		)
+		*/
+		$ss=New OSSensor();
+		$result=$ss->battery();
+		if($result){
+			$line=trim($result[0]);
+			$line=preg_replace("#\s\s*#","\t",$line);
+			trace("battery: get data of type [$type]");
+			switch($type){
+				case "-":
+					$this->params["value1"]=$result["battery_capacity"]-$result["battery_charge"];
+					$this->params["value2"]=$result["battery_capacity"];
+					$this->params["name1"]="Battery consumed Ah";
+					$this->params["name2"]="Battery maximum Ah";
+					$this->params["description"]="Battery charge";
+					$this->params["mrtg_unit"]="Ah";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=$this->params["value2"];
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+					break;;
+
+				case "%":
+					$this->params["value1"]=$result["battery_charge_%"];
+					$this->params["value2"]=$result["charger_busy"]*100;
+					$this->params["name1"]="Battery charge %";
+					$this->params["name2"]="Charger active";
+					$this->params["description"]="Battery charge %";
+					$this->params["mrtg_unit"]="%";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=2;
+					break;;
+
+				case "V":
+					$this->params["value1"]=$result["battery_mvolt"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery voltage";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery voltage";
+					$this->params["mrtg_unit"]="V";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]="m,,k,M,G,T";
+				break;;
+
+				case "A":
+					$this->params["value1"]=$result["battery_mamp"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery ampere";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery ampere";
+					$this->params["mrtg_unit"]="V";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+				break;;
+
+				case "C":
+					$this->params["value1"]=$result["battery_cycles"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery cycles";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery cycles";
+					$this->params["mrtg_unit"]="#";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]="m,,k,M,G,T";
+				break;;
+
+				default:
+					$this->params["value1"]=$result["battery_charge"];
+					$this->params["value2"]=$result["battery_capacity"];
+					$this->params["name1"]="Battery available Ah";
+					$this->params["name2"]="Battery maximum Ah";
+					$this->params["description"]="Battery charge";
+					$this->params["mrtg_unit"]="Ah";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=$this->params["value2"];
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+
+			}
+			$this->params["uptime"]="Health: $result[battery_health] after $result[battery_cycles] charging cycles";
+			if(!$aspercent){
+				if(!$inverse){
+				} else {
+				}
+			} else {
 			}
 			return $this->params;
 		} else {
@@ -404,6 +517,264 @@ Class Sensor{
 	}
 }
 
+Class OSSensor {
 
+	function __construct(){
+		$this->os=PHP_OS;
+		$this->uname=php_uname("s");
+		$this->version=php_uname("v");
+		$this->host=gethostname();
+		//print_r($this);
+	}
+
+	function cpuload(){
+		switch($this->os){
+		case "WINNT":
+			trace("OSSensor::cpuload : Windows method - Win32_Processor");
+			$wmi = new COM("Winmgmts://");
+            $server = $wmi->execquery("SELECT LoadPercentage FROM Win32_Processor");
+            $cpu_num = 0;
+            $load_total = 0;
+            $load_min=10000;
+            foreach($server as $cpu){
+                $cpu_num++;
+                $load_total += $cpu->loadpercentage;
+                $load_min=min($load_min,$cpu->loadpercentage);
+            }
+            $load = round($load_total/$cpu_num);
+   			$result=Array(
+				"OS"	=> $this->os,
+				"1min"  => round($load,3),
+				"5min"  => round(($load+$load_min)/2,3), // not really the same as load over 5min , but yeah, we can't have that
+				"15min" => round(($load+2*$load_min)/3,3), // not really the same as load over 15min , but yeah, we can't have that
+				);
+			break;;
+		case "Darwin":
+		case "Linux":
+			trace("OSSensor::cpuload : Linux/MacOSX method - sys_getloadavg");
+			$load=sys_getloadavg();
+			$result=Array(
+				"OS"	=> $this->os,
+				"1min"  => round($load[0],3),
+				"5min"  => round($load[1],3),
+				"15min" => round($load[2],3),
+				);
+			break;;
+		default:
+			$result=Array(
+				"OS"	=> $this->os,
+				"1min"  => 0,
+				"5min"  => 0,
+				"15min" => 0,
+				);
+		}
+		trace("OSSensor::cpuload : load is " . $result["1min"]);
+		return $result;
+	}
+
+	function cpucount(){
+		$numCpus = 1;
+
+		switch(true){
+		case is_file('/proc/cpuinfo'):
+			// Linux machines
+			trace("OSSensor::cpucount : Linux method: /proc/cpuinfo");
+			$cpuinfo = file_get_contents('/proc/cpuinfo');
+			preg_match_all('/^processor/m', $cpuinfo, $matches);
+			$numCpus = count($matches[0]);
+			break;;
+		case $this->os=="WINNT":
+			// Windows machines
+			trace("OSSensor::cpucount : Windows method: wmic");
+			$process = @popen('wmic cpu get NumberOfCores', 'rb');
+			if ($process){
+				fgets($process);
+				$numCpus = intval(fgets($process));
+				pclose($process);
+			}
+			break;;
+		default:
+			trace("OSSensor::cpucount : MacOSX method: sysctl");
+			$process = @popen('sysctl -a', 'rb');
+			if ($process){
+				$output = stream_get_contents($process);
+				preg_match('/hw.ncpu: (\d+)/', $output, $matches);
+				if ($matches){
+				$numCpus = intval($matches[1][0]);
+				}
+			pclose($process);
+			}
+		}
+		trace("OSSensor::cpucount : $numCpus CPUs detected");
+		return $numCpus;
+	}
+
+	function uptime(){
+		$uptime = 0;
+
+		switch($this->os){
+		case "WINNT":
+			// Windows machines
+			trace("OSSensor::uptime : Windows method: wmic");
+			$process = @popen('wmic os get lastbootuptime', 'rb');
+			if ($process){
+				fgets($process);
+				$numCpus = intval(fgets($process));
+				pclose($process);
+			}
+		case "Darwin":
+		case "Linux":
+			// Linux machines
+			trace("OSSensor::uptime : Linux method: /usr/bin/uptime");
+			$output = cmdline('/usr/bin/uptime');
+			trace($output);
+			//  18:22  up 9 days, 18:06, 3 users, load averages: 1.78 1.50 1.52
+			if($output){
+				$output=str_replace(Array("up","load"),"|",$output[0]);
+				list($now,$uptime,$rest)=explode("|",$output);
+				$uptime=preg_replace("/([0-9]* users)/", "", $uptime);
+				$uptime=str_replace(",", "", $uptime);
+			}
+			break;;
+		default:
+			trace("OSSensor::uptime : unknown OS");
+		}
+		trace("OSSensor::uptime : return $uptime");
+		return $uptime;
+	}
+
+	function battery(){
+		$result=Array();
+		switch($this->os){
+		case "WINNT":
+			// Windows machines
+			trace("OSSensor::uptime : Windows method: wmic");
+			$process = @popen('wmic os get lastbootuptime', 'rb');
+			if ($process){
+				fgets($process);
+				$numCpus = intval(fgets($process));
+				pclose($process);
+			}
+		case "Darwin":
+			if (file_exists('/usr/sbin/system_profiler')){
+				$output=cmdline("system_profiler SPPowerDataType");
+				$this->parse_profiler($output);
+			} elseif (file_exists('/usr/sbin/AppleSystemProfiler')) {
+				$output=cmdline("AppleSystemProfiler SPPowerDataType");	
+			}
+			$parsed=$this->parse_profiler($output);
+			// static
+			$result["battery_capacity"]	=$this->find_val("Full Charge Capacity",$parsed);
+			$result["charger_watt"]		=$this->find_val("AC Charger Information - Wattage",$parsed);
+
+			// boolean
+			$result["battery_present"]	=$this->find_bool("Battery Information - Battery Installed",$parsed);
+			$result["charger_busy"]		=$this->find_bool("AC Charger Information - Charging",$parsed);
+			$result["charger_present"]	=$this->find_bool("AC Charger Information - Connected",$parsed);
+			$result["charger_done"]		=$this->find_bool("Fully Charged",$parsed);
+
+			// dynamic
+			$result["battery_health"]	=$this->find_val("Health Information - Condition",$parsed);
+			$result["battery_cycles"]	=$this->find_val("Cycle Count",$parsed);
+
+			$result["battery_mamp"]		=$this->find_val("Battery Information - Amperage",$parsed);
+			$result["battery_mvolt"]	=$this->find_val("Battery Information - Voltage",$parsed);
+			$result["battery_charge"]	=$this->find_val("Charge Remaining",$parsed);
+			$result["battery_charge_%"]=round(100*$result["battery_charge"]/$result["battery_capacity"],3);
+			ksort($result);
+
+		case "Linux":
+			// Linux machines
+			trace("OSSensor::uptime : Linux method: /usr/bin/uptime");
+			$output = cmdline('/usr/bin/uptime');
+			trace($output);
+			//  18:22  up 9 days, 18:06, 3 users, load averages: 1.78 1.50 1.52
+			if($output){
+				$output=str_replace(Array("up","load"),"|",$output[0]);
+				list($now,$uptime,$rest)=explode("|",$output);
+				$uptime=preg_replace("/([0-9]* users)/", "", $uptime);
+				$uptime=str_replace(",", "", $uptime);
+			}
+			break;;
+		default:
+			trace("OSSensor::uptime : unknown OS");
+		}
+		return $result;
+	}
+
+	private function parse_profiler($lines){
+		$previndent=-1;
+		$parsed=Array();
+		foreach($lines as $line){
+			if(strlen(trim($line)) == 0) continue;
+			$indent=strlen($line)-strlen(preg_replace("/^([\s\t]*)/","",$line));
+			list($key,$val)=explode(":",trim($line),2);
+			$val=trim($val);
+			switch(true){
+			case strlen($val) > 0:
+				$tree=Array();
+				foreach($titles as $level => $title){
+					if($level < $indent AND strlen($title) > 0) $tree[]=$title;
+				}
+				$tree[]=$key;
+				//$tree[]=$indent;
+				$combined=implode(" - ",$tree);
+				//$parsed[$combined]=$val;
+				$parsed[]="$combined: $val";
+				//trace("$combined :: $val");
+			case $indent < $previndent:
+				//$titles[$previndent]="";
+				$titles[$indent]=$key;
+				$previndent=$indent;
+				break;
+			case $indent > $previndent:
+				$titles[$indent]=$key;
+				break;
+			}
+
+		}
+		//trace($parsed);
+		return $parsed;
+	}
+
+	private function find_val($pattern,$subject){
+		$results=preg_grep("/$pattern/", $subject);
+		if(!$results)	return false;
+		foreach($results as $result){
+			list($key,$val)=explode(":",$result,2);
+		}
+		$val=trim($val);
+		return $val;
+	}
+
+	private function find_bool($pattern,$subject){
+		$results=preg_grep("/$pattern/", $subject);
+		if(!$results)	return false;
+		foreach($results as $result){
+			list($key,$val)=explode(":",$result,2);
+		}
+		$val=strtoupper(trim($val));
+		switch($val){
+			case 1:
+			case "TRUE":
+			case "YES":
+			case "OUI":
+				trace("find_bool:  found $val => 1");
+				return 1;
+				break;;
+			case 0:
+			case "NON":
+			case "NO":
+			case "FALSE":
+				trace("find_bool:  found $val => 0");
+				return 0;
+				break;;
+		}
+		trace("find_bool:  found $val => ?");
+		if(strtoupper(substr($val,0,1)) == "N")	return 0;
+		return 1;
+	}
+
+}
 
 ?>
