@@ -268,15 +268,16 @@ Class Sensor{
 			trace("diskusage: cannot find [$path]");
 			//return false;
 		}
-		$result=cmdline("df -k $path");
+		$result=cmdline("df -m $path");
+		// better use df -m because some path names can be so long they leave no space between name and #blocks
 		trace($result);
 		if($result[1]){
 			$line=$result[1];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
 			if(!$aspercent){
-				$this->params["value1"]=$used;
-				$this->params["value2"]=$blocks;
+				$this->params["value1"]=$used*1024;
+				$this->params["value2"]=$blocks*1024;
 				$this->params["name1"]="Used disk space";
 				$this->params["name2"]="Total disk space";
 				$this->params["description"]="Disk Usage (used/total) [$disk]";
