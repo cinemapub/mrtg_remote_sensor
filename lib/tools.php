@@ -68,7 +68,7 @@ Class Cache {
 		}
 		$cachefile=$this->mkfilename($id,$group);
 		if(!file_exists($cachefile)){
-			trace("Cache::get_arr : cache [$cachefile] not found");
+			//trace("Cache::get_arr : cache [$cachefile] not found");
 			return false;
 		}
 		// so the cache file exists
