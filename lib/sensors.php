@@ -307,7 +307,7 @@ Class Sensor{
 			trace("foldersize: cannot find [$folder]");
 			return false;
 		}
-		$result=cmdline("du -s -k $folder",false,60*15);
+		$result=cmdline("du -skD $folder",false,60*15);
 		if($result){
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
