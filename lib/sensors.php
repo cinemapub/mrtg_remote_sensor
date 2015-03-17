@@ -77,6 +77,7 @@ Class Sensor{
 	// 20:57  up 9 days, 20:41, 2 users, load averages: 1.75 1.74 1.57
 
 		//$result=cmdline("uptime");
+		$server=strtolower($this->params["server"]);
 		$ss=New OStools();
 		$result=$ss->cpuload();
 		$cpuinfo=$ss->cpuinfo();
@@ -90,7 +91,7 @@ Class Sensor{
 				$this->params["value2"]=$load15*100;
 				$this->params["name1"]="Avg load over 5 min";
 				$this->params["name2"]="Avg load over 15 min";
-				$this->params["description"]="CPU load (5/15 min - $nbcpu CPUs)";
+				$this->params["description"]="$server: CPU (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="load";
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]="10000";
@@ -100,7 +101,7 @@ Class Sensor{
 				$this->params["value2"]=round($load15*100/$nbcpu,2);
 				$this->params["name1"]="% used - 5 min";
 				$this->params["name2"]="% used - 15 min";
-				$this->params["description"]="CPU usage % (5/15 min - $nbcpu CPUs)";
+				$this->params["description"]="$server: CPU% (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
 				$this->params["mrtg_maxbytes"]="1000";
@@ -119,6 +120,7 @@ Class Sensor{
 	//  Swap:      2097144       188224      1908920
 	// Total:      2346328       402600      1943728
 		$result=cmdline("free | grep Mem");
+		$server=strtolower($this->params["server"]);
 		if($result[0]){
 			$line=trim($result[0]);
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -128,7 +130,7 @@ Class Sensor{
 				$this->params["value2"]=$total;
 				$this->params["name1"]="Used RAM";
 				$this->params["name2"]="Total RAM";
-				$this->params["description"]="Memory usage (used/total)";
+				$this->params["description"]="$server: Mem (used/total)";
 				$this->params["mrtg_unit"]="B";
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]=$total;
@@ -138,7 +140,7 @@ Class Sensor{
 				$this->params["value2"]=100;
 				$this->params["name1"]="% RAM used";
 				$this->params["name2"]="100%";
-				$this->params["description"]="Memory usage (%)";
+				$this->params["description"]="$server: Mem %";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
 				$this->params["mrtg_maxbytes"]=100;
@@ -168,6 +170,7 @@ Class Sensor{
 		)
 		*/
 		$ss=New OStools();
+		$server=strtolower($this->params["server"]);
 		$result=$ss->battery();
 		if($result){
 			$line=trim($result[0]);
@@ -179,7 +182,7 @@ Class Sensor{
 					$this->params["value2"]=$result["battery_capacity"];
 					$this->params["name1"]="Battery consumed Ah";
 					$this->params["name2"]="Battery maximum Ah";
-					$this->params["description"]="Battery charge";
+					$this->params["description"]="$server: Battery charge";
 					$this->params["mrtg_unit"]="Ah";
 					$this->params["mrtg_options"].=",gauge";
 					$this->params["mrtg_maxbytes"]=$this->params["value2"];
@@ -191,7 +194,7 @@ Class Sensor{
 					$this->params["value2"]=$result["charger_busy"]*100;
 					$this->params["name1"]="Battery charge %";
 					$this->params["name2"]="Charger active";
-					$this->params["description"]="Battery charge %";
+					$this->params["description"]="$server: Battery charge %";
 					$this->params["mrtg_unit"]="%";
 					$this->params["mrtg_options"].=",gauge";
 					$this->params["mrtg_maxbytes"]=2;
@@ -202,7 +205,7 @@ Class Sensor{
 					$this->params["value2"]="";
 					$this->params["name1"]="Battery voltage";
 					$this->params["name2"]="";
-					$this->params["description"]="Battery voltage";
+					$this->params["description"]="$server: Battery voltage";
 					$this->params["mrtg_unit"]="V";
 					$this->params["mrtg_options"].=",gauge,noo";
 					$this->params["mrtg_maxbytes"]=15000;
@@ -214,7 +217,7 @@ Class Sensor{
 					$this->params["value2"]="";
 					$this->params["name1"]="Battery ampere";
 					$this->params["name2"]="";
-					$this->params["description"]="Battery ampere";
+					$this->params["description"]="$server: Battery ampere";
 					$this->params["mrtg_unit"]="V";
 					$this->params["mrtg_options"].=",gauge,noo";
 					$this->params["mrtg_maxbytes"]=15000;
@@ -226,7 +229,7 @@ Class Sensor{
 					$this->params["value2"]="";
 					$this->params["name1"]="Battery cycles";
 					$this->params["name2"]="";
-					$this->params["description"]="Battery cycles";
+					$this->params["description"]="$server: Battery cycles";
 					$this->params["mrtg_unit"]="#";
 					$this->params["mrtg_options"].=",gauge,noo";
 					$this->params["mrtg_maxbytes"]=15000;
@@ -238,7 +241,7 @@ Class Sensor{
 					$this->params["value2"]=$result["battery_capacity"];
 					$this->params["name1"]="Battery available Ah";
 					$this->params["name2"]="Battery maximum Ah";
-					$this->params["description"]="Battery charge";
+					$this->params["description"]="$server: Battery charge";
 					$this->params["mrtg_unit"]="Ah";
 					$this->params["mrtg_options"].=",gauge";
 					$this->params["mrtg_maxbytes"]=$this->params["value2"];
@@ -268,6 +271,7 @@ Class Sensor{
 			//return false;
 		}
 		$result=cmdline("df -m $path");
+		$server=strtolower($this->params["server"]);
 		// better use df -m because some path names can be so long they leave no space between name and #blocks
 		trace($result);
 		if($result[1]){
@@ -279,7 +283,7 @@ Class Sensor{
 				$this->params["value2"]=$blocks*1024;
 				$this->params["name1"]="Used disk space";
 				$this->params["name2"]="Total disk space";
-				$this->params["description"]="Disk Usage (used/total) [$disk]";
+				$this->params["description"]="$server: Disk (used/total) [$disk]";
 				$this->params["mrtg_unit"]="B";
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]=$blocks*1024;
@@ -289,7 +293,7 @@ Class Sensor{
 				$this->params["value2"]=100;
 				$this->params["name1"]="Used disk %";
 				$this->params["name2"]="100%";
-				$this->params["description"]="Disk Usage (%) [$disk]";
+				$this->params["description"]="$server: Disk usage % [$disk]";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]=100;
@@ -369,8 +373,9 @@ Class Sensor{
 		} else {
 			$result=cmdline("ps | wc -l");
 		}
-                if($result){
-			$desc="Process count";
+        if($result){
+			$server=strtolower($this->params["server"]);
+			$desc="$server: server load";
 			if($filter)	$desc.=" [$filter]";
                         $line=$result[0];
                         $nb=(int)trim($line);
