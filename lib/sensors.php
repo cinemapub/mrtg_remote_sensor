@@ -282,7 +282,7 @@ Class Sensor{
 				$this->params["description"]="Disk Usage (used/total) [$disk]";
 				$this->params["mrtg_unit"]="B";
 				$this->params["mrtg_options"].=",gauge";
-				$this->params["mrtg_maxbytes"]=$blocks;
+				$this->params["mrtg_maxbytes"]=$blocks*1024;
 				$this->params["mrtg_kmg"]="k,M,G,T,P";
 			} else {
 				$this->params["value1"]=round($used*100/$blocks,2);
@@ -308,31 +308,23 @@ Class Sensor{
 			return false;
 		}
 		$result=cmdline("du -skD $folder",false,60*15);
+		$result2=cmdline("df -m $folder");
+		$line2=$result2[1];
+		$line2=preg_replace("#\s\s*#","\t",$line2);
+		list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line2);
 		if($result){
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($size,$path)=explode("\t",$line);
-			if(!$aspercent){
-				$this->params["value1"]=$size;
-				$this->params["value2"]="0";
-				$this->params["name1"]="Folder size";
-				$this->params["name2"]="";
-				$this->params["description"]="Folder Size [$folder]";
-				$this->params["mrtg_unit"]="B";
-				$this->params["mrtg_options"].=",gauge,noo,nopercent";
-				$this->params["mrtg_maxbytes"]=1000000000;
-				$this->params["mrtg_kmg"]="k,M,G,T,P";
-			} else {
-				$this->params["value1"]=$size;
-				$this->params["value2"]="0";
-				$this->params["name1"]="Folder size";
-				$this->params["name2"]="";
-				$this->params["description"]="Folder Size [$folder]";
-				$this->params["mrtg_unit"]="B";
-				$this->params["mrtg_options"].=",gauge,noo,nopercent";
-				$this->params["mrtg_maxbytes"]=1000000000;
-				$this->params["mrtg_kmg"]="k,M,G,T,P";
-			}
+			$this->params["value1"]=$size;
+			$this->params["value2"]="0";
+			$this->params["name1"]="Folder size";
+			$this->params["name2"]="";
+			$this->params["description"]="Folder Size [$folder]";
+			$this->params["mrtg_unit"]="B";
+			$this->params["mrtg_options"].=",gauge,noo";
+			$this->params["mrtg_maxbytes"]=$blocks*1024;
+			$this->params["mrtg_kmg"]="k,M,G,T,P";
 			return $this->params;
 		} else {
 			return false;
