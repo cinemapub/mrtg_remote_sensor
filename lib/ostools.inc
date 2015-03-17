@@ -7,7 +7,7 @@ Class OStools {
 		$this->os=PHP_OS;
 		$this->uname=php_uname("s");
 		$this->version=php_uname("v");
-		$this->host=gethostname();
+		$this->host=php_uname("n");
 		//print_r($this);
 	}
 
