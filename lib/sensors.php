@@ -1,11 +1,13 @@
 <?php
 include_once("tools.php");
+include_once("ostools.inc");
 
 Class Sensor{
 
 	var $params=Array();
 	
 	function __construct(){
+		$ss=New OStools();
 		$urlparts=Array();
 		$nameparts[]=$_SERVER['SERVER_NAME'];
 		$this->params["server"]=$_SERVER['SERVER_NAME'];
@@ -32,7 +34,7 @@ Class Sensor{
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
 		$urlparts[]="config=1";
 		$this->params["cfgurl"]=$url . "?" . implode("&",$urlparts);
-		$this->params["uptime"]=$this->uptime();
+		$this->params["uptime"]=$ss->uptime();
 		$this->params["mrtg_options"]="growright,nobanner";
 		$this->params["mrtg_kmg"]=",k,M,G,T,P";
 		}
@@ -47,6 +49,7 @@ Class Sensor{
 			echo $params["cfgurl"] . "\n";
 		} else {
 			$name=$params["mrtg_name"];
+			$name=str_replace("%","p",$name);
 			echo "#### MRTG CONFIG $name ####\n";
 			echo "Target[$name]: `curl -s \"$params[url]\"`\n";
 			echo "Title[$name]: $params[description]\n";
@@ -70,19 +73,18 @@ Class Sensor{
 	// BusyBox
 	// 22:52:54 up  3:38, load average: 2.52, 2.19, 2.01
 
-		$result=cmdline("uptime");
-		trace($result);
-		$cpus=cmdline('grep cpu /proc/stat | grep -v "cpu "',false,3600*24);
-		//$cpus=cmdline('grep "model name" /proc/cpuinfo',false,3600*24);
-		trace($cpus);
-		$nbcpu=count($cpus);
-		if(!$nbcpu)	$nbcpu=1;
-		$cpumodel=$cpus[0];
+	// MacOSX  Darwin
+	// 20:57  up 9 days, 20:41, 2 users, load averages: 1.75 1.74 1.57
+
+		//$result=cmdline("uptime");
+		$ss=New OStools();
+		$result=$ss->cpuload();
+		$cpuinfo=$ss->cpuinfo();
 		if($result){
-			$line=$result[0];
-			list($uptime,$loads)=explode("load average:",$line,2);
-			if(!$loads)	return false;
-			list($load1,$load5,$load15)=explode(",",$loads);
+			$load1=$result["1min"];
+			$load5=$result["5min"];
+			$load15=$result["15min"];
+			$this->params["server"]="$cpuinfo[cores] core(s) x $cpuinfo[ghz] GHz (bogomips $cpuinfo[bogomips])";
 			if(!$aspercent){
 				$this->params["value1"]=$load5*100;
 				$this->params["value2"]=$load15*100;
@@ -93,6 +95,7 @@ Class Sensor{
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]="10000";
 			} else {
+				$nbcpu=$ss->cpucount();
 				$this->params["value1"]=round($load5*100/$nbcpu,2);
 				$this->params["value2"]=round($load15*100/$nbcpu,2);
 				$this->params["name1"]="% used - 5 min";
@@ -146,6 +149,115 @@ Class Sensor{
 		}
 	}
 
+	function battery($type=""){
+		/*
+		Array
+		(
+		    [battery_mamp] =>  319
+		    [battery_capacity] =>  6214
+		    [battery_charge] =>  6151
+		    [battery_charge_%] => 0.99
+		    [battery_cycles] =>  22
+		    [battery_health] =>  Normal
+		    [battery_present] => 1
+		    [battery_mvolt] => 12880
+		    [charger_busy] => 1
+		    [charger_done] => 0
+		    [charger_present] => 1
+		    [charger_watt] =>  85
+		)
+		*/
+		$ss=New OStools();
+		$result=$ss->battery();
+		if($result){
+			$line=trim($result[0]);
+			$line=preg_replace("#\s\s*#","\t",$line);
+			trace("battery: get data of type [$type]");
+			switch($type){
+				case "-":
+					$this->params["value1"]=$result["battery_capacity"]-$result["battery_charge"];
+					$this->params["value2"]=$result["battery_capacity"];
+					$this->params["name1"]="Battery consumed Ah";
+					$this->params["name2"]="Battery maximum Ah";
+					$this->params["description"]="Battery charge";
+					$this->params["mrtg_unit"]="Ah";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=$this->params["value2"];
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+					break;;
+
+				case "%":
+					$this->params["value1"]=$result["battery_charge_%"];
+					$this->params["value2"]=$result["charger_busy"]*100;
+					$this->params["name1"]="Battery charge %";
+					$this->params["name2"]="Charger active";
+					$this->params["description"]="Battery charge %";
+					$this->params["mrtg_unit"]="%";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=2;
+					break;;
+
+				case "V":
+					$this->params["value1"]=$result["battery_mvolt"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery voltage";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery voltage";
+					$this->params["mrtg_unit"]="V";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]="m,,k,M,G,T";
+				break;;
+
+				case "A":
+					$this->params["value1"]=$result["battery_mamp"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery ampere";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery ampere";
+					$this->params["mrtg_unit"]="V";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+				break;;
+
+				case "C":
+					$this->params["value1"]=$result["battery_cycles"];
+					$this->params["value2"]="";
+					$this->params["name1"]="Battery cycles";
+					$this->params["name2"]="";
+					$this->params["description"]="Battery cycles";
+					$this->params["mrtg_unit"]="#";
+					$this->params["mrtg_options"].=",gauge,noo";
+					$this->params["mrtg_maxbytes"]=15000;
+					$this->params["mrtg_kmg"]="m,,k,M,G,T";
+				break;;
+
+				default:
+					$this->params["value1"]=$result["battery_charge"];
+					$this->params["value2"]=$result["battery_capacity"];
+					$this->params["name1"]="Battery available Ah";
+					$this->params["name2"]="Battery maximum Ah";
+					$this->params["description"]="Battery charge";
+					$this->params["mrtg_unit"]="Ah";
+					$this->params["mrtg_options"].=",gauge";
+					$this->params["mrtg_maxbytes"]=$this->params["value2"];
+					$this->params["mrtg_kmg"]=",k,M,G,T,P";
+
+			}
+			$this->params["uptime"]="Health: $result[battery_health] after $result[battery_cycles] charging cycles";
+			if(!$aspercent){
+				if(!$inverse){
+				} else {
+				}
+			} else {
+			}
+			return $this->params;
+		} else {
+			return false;
+		}
+	}
+
 	function diskusage($path=false,$aspercent=false){
 	// >df
 	// Filesystem           1K-blocks      Used Available Use% Mounted on
@@ -155,15 +267,16 @@ Class Sensor{
 			trace("diskusage: cannot find [$path]");
 			//return false;
 		}
-		$result=cmdline("df -k $path");
+		$result=cmdline("df -m $path");
+		// better use df -m because some path names can be so long they leave no space between name and #blocks
 		trace($result);
 		if($result[1]){
 			$line=$result[1];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
 			if(!$aspercent){
-				$this->params["value1"]=$used;
-				$this->params["value2"]=$blocks;
+				$this->params["value1"]=$used*1024;
+				$this->params["value2"]=$blocks*1024;
 				$this->params["name1"]="Used disk space";
 				$this->params["name2"]="Total disk space";
 				$this->params["description"]="Disk Usage (used/total) [$disk]";
@@ -194,7 +307,7 @@ Class Sensor{
 			trace("foldersize: cannot find [$folder]");
 			return false;
 		}
-		$result=cmdline("du -s -k $folder",false,60*15);
+		$result=cmdline("du -skD $folder",false,60*15);
 		if($result){
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -348,6 +461,7 @@ Class Sensor{
 	// ---------- INTERNAL FUNCTIONS
 
 	function parse_options($options){
+		// parse key1=val1,key2=val2,key3
 		if(!$options)	return false;
 		$results=Array();
 		trace("parse_options: $options");
@@ -366,20 +480,9 @@ Class Sensor{
 		return $result;	
 	}
 	
-	function uptime(){
-		$result=cmdline("</proc/uptime awk '{print $1}'");
-		$nbsecs=$result[0];
-		if($nbsecs > 60*60*24){
-			return round($nbsecs/(60*60*24),1) . " days";
-		} else {
-			return round($nbsecs/(60*60),1) . " hours";
-		}
-	}
-	
 	function parse_cmd($cmd,$folder=false,$cachesecs=300,$linenr=1,$fieldnr=1){
 		// to replace awk, tail, head, ...
 		$result=cmdline($cmd,$folder,$cachesecs);
-	
 	}
 
 
@@ -403,7 +506,5 @@ Class Sensor{
 		return round((($t2 - $t1) * 1000000)); 
 	}
 }
-
-
 
 ?>

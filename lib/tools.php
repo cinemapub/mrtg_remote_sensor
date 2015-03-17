@@ -68,7 +68,7 @@ Class Cache {
 		}
 		$cachefile=$this->mkfilename($id,$group);
 		if(!file_exists($cachefile)){
-			trace("Cache::get_arr : cache [$cachefile] not found");
+			//trace("Cache::get_arr : cache [$cachefile] not found");
 			return false;
 		}
 		// so the cache file exists
@@ -179,6 +179,17 @@ function getparam($name,$default=false){
 	$value=$default;
 	trace("getparam: [$name] = [" . htmlspecialchars(substr($value,0,20)) . "] (default)");
 	return $value;
+}
+
+function preg_find($pattern,$subject){
+	preg_match($pattern,$subject,$matches);
+	if($matches){
+		trace($matches);
+		return $matches[0][1];
+	} else {
+		trace("preg_find: $pattern not found");
+		return false;
+	}
 }
 
 ?>
