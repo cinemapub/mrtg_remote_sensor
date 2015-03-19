@@ -108,7 +108,7 @@ Class OStools {
 			$cpulines = file_get_contents('/proc/cpuinfo');
 			trace($cpulines);
 			
-			$bogomips=$this->grepinfo("BogoMIPS",1000);			
+			$bogomips=$this->grepinfo("bogomips",1000);
 			$numcores=$this->grepinfo("cpu cores",1);
 			$cpughz=$this->grepinfo("cpu MHz",$bogomips/$numcores);
 			$cpughz=round($cpughz/1000,1);
@@ -246,7 +246,7 @@ Class OStools {
 
 	private function grepinfo($param,$default=false,$file="/proc/cpuinfo"){
 		if($this->os<>"Linux")	return false;
-		$output=cmdline("grep \"$param\" $file");
+		$output=cmdline("grep -i \"$param\" $file");
 		$val=$default;
 		if($output){
 			foreach($output as $line){

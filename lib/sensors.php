@@ -85,7 +85,11 @@ Class Sensor{
 			$load1=$result["1min"];
 			$load5=$result["5min"];
 			$load15=$result["15min"];
-			$this->params["server"]="$cpuinfo[cores] core(s) x $cpuinfo[ghz] GHz (bogomips $cpuinfo[bogomips])";
+			if($cpuinfo["cores"] == 1){
+				$this->params["server"]="$cpuinfo[ghz] GHz (bogomips $cpuinfo[bogomips])";
+			} else {
+				$this->params["server"]="$cpuinfo[cores] cores x $cpuinfo[ghz] GHz (bogomips $cpuinfo[bogomips])";
+			}
 			if(!$aspercent){
 				$this->params["value1"]=$load5*100;
 				$this->params["value2"]=$load15*100;
