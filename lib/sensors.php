@@ -81,6 +81,7 @@ Class Sensor{
 		$ss=New OStools();
 		$result=$ss->cpuload();
 		$cpuinfo=$ss->cpuinfo();
+		$nbcpu=$cpuinfo["cores"];
 		if($result){
 			$load1=$result["1min"];
 			$load5=$result["5min"];
@@ -98,9 +99,9 @@ Class Sensor{
 				$this->params["description"]="$server: CPU (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="load";
 				$this->params["mrtg_options"].=",gauge";
-				$this->params["mrtg_maxbytes"]="10000";
+				$this->params["mrtg_maxbytes"]=500*$cpuinfo["cores"];
+				// max load = 5.0 
 			} else {
-				$nbcpu=$ss->cpucount();
 				$this->params["value1"]=round($load5*100/$nbcpu,2);
 				$this->params["value2"]=round($load15*100/$nbcpu,2);
 				$this->params["name1"]="% used - 5 min";
@@ -108,7 +109,7 @@ Class Sensor{
 				$this->params["description"]="$server: CPU% (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
-				$this->params["mrtg_maxbytes"]="1000";
+				$this->params["mrtg_maxbytes"]=500;
 			}
 			return $this->params;
 		} else {
