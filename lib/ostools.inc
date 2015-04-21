@@ -122,13 +122,13 @@ Class OStools {
 			trace("OSSensor::cpuinfo : Windows method: wmic");
 			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
 			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["cpu ghz"];
+			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
 		default:
 			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
 			$cpuinfo["cores"]=$this->sysctl("hw.ncpu");
 			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["cpu ghz"];
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 		}
 		trace($cpuinfo);
 		return $cpuinfo;
@@ -261,23 +261,24 @@ Class OStools {
 	private function sysctl($key,$type="string"){
 		if($this->os<>"Darwin")	return false;
 		$val=false;
-		$process = @popen('sysctl -a', 'rb');
-		if ($process){
-			$output = stream_get_contents($process);
+		$output = cmdline("sysctl -a | grep '$key:'");
+		trace($output);
+		if ($output){
+			$line=$output[0];
+			list($key,$val)=explode(":",$line);
 			switch($type){
 			case "int":
 			case "integer":
-				preg_match('/$key: (\d+)/', $output, $matches);
+				$val=(int)$val;
 				break;;
 			default:
-				preg_match('/$key: (.+)$/', $output, $matches);
+				$val=trim($val);
 			}
-			if ($matches){
-				$val=$matches[1][0];
-			}
-			pclose($process);
+			return $val;
+		} else {
+			trace("sysctl: nothing found for $key");
+			return false;
 		}
-		return $val;
 	}
 
 	private function parse_profiler($lines){
