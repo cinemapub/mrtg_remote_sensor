@@ -29,7 +29,7 @@ Class Sensor{
 			$urlparts[]="percent=1";
 			$nameparts[]="p";
 			}
-		$this->params["mrtg_name"]=implode(".",$nameparts);
+		$this->params["mrtg_name"]=preg_replace("#([^\w\d_\-\.]+)#","",implode(".",$nameparts));
 		$url=(isset($_SERVER["https"]) ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
 		$urlparts[]="config=1";
@@ -124,24 +124,22 @@ Class Sensor{
 	//   Mem:       249184       214376        34808            0        47724
 	//  Swap:      2097144       188224      1908920
 	// Total:      2346328       402600      1943728
-		$result=cmdline("free | grep Mem");
+		$ss=New OStools();
 		$server=strtolower($this->params["server"]);
-		if($result[0]){
-			$line=trim($result[0]);
-			$line=preg_replace("#\s\s*#","\t",$line);
-			list($mem,$total,$used,$free,$percent,$shared,$buffers)=explode("\t",$line);
+		$result=$ss->memusage();
+		if($result){
 			if(!$aspercent){
-				$this->params["value1"]=$used;
-				$this->params["value2"]=$total;
+				$this->params["value1"]=$result["used"];
+				$this->params["value2"]=$result["total"];
 				$this->params["name1"]="Used RAM";
 				$this->params["name2"]="Total RAM";
 				$this->params["description"]="$server: Mem (used/total)";
 				$this->params["mrtg_unit"]="B";
 				$this->params["mrtg_options"].=",gauge";
-				$this->params["mrtg_maxbytes"]=$total;
+				$this->params["mrtg_maxbytes"]=$result["total"];
 				$this->params["mrtg_kmg"]="k,M,G,T,P";
 			} else {
-				$this->params["value1"]=round($used*100/$total,2);
+				$this->params["value1"]=round($result["used"]*100/$result["total"],2);
 				$this->params["value2"]=100;
 				$this->params["name1"]="% RAM used";
 				$this->params["name2"]="100%";
@@ -275,30 +273,27 @@ Class Sensor{
 			trace("diskusage: cannot find [$path]");
 			//return false;
 		}
-		$result=cmdline("df -m $path");
+		$ss=New OStools();
+		$result=$ss->diskusage($path);
 		$server=strtolower($this->params["server"]);
-		// better use df -m because some path names can be so long they leave no space between name and #blocks
-		trace($result);
-		if($result[1]){
-			$line=$result[1];
-			$line=preg_replace("#\s\s*#","\t",$line);
-			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
+		//trace($result);
+		if($result){
 			if(!$aspercent){
-				$this->params["value1"]=$used*1024;
-				$this->params["value2"]=$blocks*1024;
+				$this->params["value1"]=$result["used"];
+				$this->params["value2"]=$result["total"];
 				$this->params["name1"]="Used disk space";
 				$this->params["name2"]="Total disk space";
-				$this->params["description"]="$server: Disk (used/total) [$disk]";
+				$this->params["description"]="$server: Disk (used/total) [$path]";
 				$this->params["mrtg_unit"]="B";
 				$this->params["mrtg_options"].=",gauge";
-				$this->params["mrtg_maxbytes"]=$blocks*1024;
+				$this->params["mrtg_maxbytes"]=$result["total"];
 				$this->params["mrtg_kmg"]="k,M,G,T,P";
 			} else {
-				$this->params["value1"]=round($used*100/$blocks,2);
+				$this->params["value1"]=round($result["used"]*100/$result["total"],2);
 				$this->params["value2"]=100;
 				$this->params["name1"]="Used disk %";
 				$this->params["name2"]="100%";
-				$this->params["description"]="$server: Disk usage % [$disk]";
+				$this->params["description"]="$server: Disk usage % [$path]";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge";
 				$this->params["mrtg_maxbytes"]=100;
@@ -316,23 +311,17 @@ Class Sensor{
 			trace("foldersize: cannot find [$folder]");
 			return false;
 		}
-		$result=cmdline("du -skD $folder",false,60*15);
-		$result2=cmdline("df -m $folder");
-		$line2=$result2[1];
-		$line2=preg_replace("#\s\s*#","\t",$line2);
-		list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line2);
+		$ss=New OStools();
+		$result=$ss->foldersize($folder);
 		if($result){
-			$line=$result[0];
-			$line=preg_replace("#\s\s*#","\t",$line);
-			list($size,$path)=explode("\t",$line);
-			$this->params["value1"]=$size;
-			$this->params["value2"]="0";
+			$this->params["value1"]=$result["size"];
+			$this->params["value2"]=$result["total"];
 			$this->params["name1"]="Folder size";
-			$this->params["name2"]="";
+			$this->params["name2"]="Total disk size";
 			$this->params["description"]="Folder Size [$folder]";
 			$this->params["mrtg_unit"]="B";
 			$this->params["mrtg_options"].=",gauge,noo";
-			$this->params["mrtg_maxbytes"]=$blocks*1024;
+			$this->params["mrtg_maxbytes"]=$result["total"];
 			$this->params["mrtg_kmg"]="k,M,G,T,P";
 			return $this->params;
 		} else {
@@ -371,37 +360,30 @@ Class Sensor{
 		}
 	}
 	
-	function proccount($filter){
-		if($filter){
-			$filter=$this->sanitize($filter);
-			$result=cmdline("ps | grep \"$filter\" | wc -l");
-		} else {
-			$result=cmdline("ps | wc -l");
-		}
+	function proccount($filter=false){
+		$server=strtolower($this->params["server"]);
+		$ss=New OStools();
+		$result=$ss->proccount($filter);
         if($result){
 			$server=strtolower($this->params["server"]);
 			$desc="$server: server load";
-			if($filter)	$desc.=" [$filter]";
-                        $line=$result[0];
-                        $nb=(int)trim($line);
-			if($filter){
-				$nb=$nb-1; // remove the 'grep' process we created ourselves
-			} else {
-				$nb=$nb-3; // remove 1st line, and our own 'ps' and 'wc' process
-			}
-                        $this->params["value1"]=$nb;
-                        $this->params["value2"]="0";
-                        $this->params["name1"]=$desc;
-                        $this->params["name2"]="";
-                        $this->params["description"]=$desc;
-                        $this->params["mrtg_unit"]="proc";
-                        $this->params["mrtg_options"].=",gauge,noo,nopercent";
-                        $this->params["mrtg_maxbytes"]=1000000;
-                        $this->params["mrtg_kmg"]=",k,M,G,T,P";
-                        return $this->params;
-                } else {
-                        return false;
-                }
+			$descf=$desc;
+			if($filter)	$descf.=" [$filter]";
+			$filtered=$result["filtered"];
+			$total=$result["total"];
+			$this->params["value1"]=$filtered;
+			$this->params["value2"]=$total;
+			$this->params["name1"]=$descf;
+			$this->params["name2"]=$desc;
+			$this->params["description"]=$desc;
+			$this->params["mrtg_unit"]="proc";
+			$this->params["mrtg_options"].=",gauge,noo,nopercent";
+			$this->params["mrtg_maxbytes"]=1000000;
+			$this->params["mrtg_kmg"]=",k,M,G,T,P";
+			return $this->params;
+		} else {
+			return false;
+		}
 	}
 
 	function pingtime($address,$port=80){
