@@ -122,7 +122,7 @@ Class OStools {
 			trace("OSSensor::cpuinfo : Windows method: wmic");
 			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
 			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["ghz"] * 1000;
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
 		default:
 			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
@@ -144,7 +144,7 @@ Class OStools {
 			// 20150122133550.626398+060
 			trace("OSSensor::uptime : Windows method: wmic");
 			$lastboot=$this->wmic("os get lastbootuptime");
-			$bdate=midstr($lastboot,0,4)."-".midstr($lastboot,4,2)."-".midstr($lastboot,6,2)." ".midstr($lastboot,8,2).":".midstr($lastboot,10,2);
+			$bdate=substr($lastboot,0,4)."-".substr($lastboot,4,2)."-".substr($lastboot,6,2)." ".substr($lastboot,8,2).":".substr($lastboot,10,2);
 			$btime=strtotime($bdate);
 			$since=time()-$btime;
 			$sincedays=$since/(3600*24);
@@ -154,6 +154,7 @@ Class OStools {
 			case $sincedays < 365:	$uptime=round($since/3600*24*7,1) . " weeks";	break;;
 			default:				$uptime=round($since/3600*24*365,1) . " years";
 			}
+			break;;
 		case "Darwin":
 		case "Linux":
 			// Linux machines
@@ -183,7 +184,8 @@ Class OStools {
 			trace("OSSensor::battery : Windows method: wmic");
 			// to be implemented
 			$lastboot=$this->wmic("os get lastbootuptime");
-			$result["error"]="not yet implemented";
+			$result=false;
+			break;;
 		case "Darwin":
 			if (file_exists('/usr/sbin/system_profiler')){
 				trace("OSSensor::battery : MacOSX method: system_profiler");
@@ -228,19 +230,20 @@ Class OStools {
 	private function wmic($command,$type="string"){
 		if($this->os<>"WINNT")	return false;
 		$val=false;
-		$process = @popen('wmic $command', 'rb');
-		if ($process){
-			fgets($process); // skip^first line with field title
+		$return=cmdline("wmic $command");
+
+		if ($return){
+			//trace($return);
 			switch($type){
 			case "int":
 			case "integer":
-				$val = intval(fgets($process));
+				$val = intval($return[1]);
 				break;;
 			default:
-				$val = trim(fgets($process));
+				$val = trim($return[1]);
 			}
-			pclose($process);
 		}
+		trace("wmic: [wmic $command] => '$val'");
 		return $val;
 	}
 

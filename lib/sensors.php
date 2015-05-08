@@ -30,7 +30,7 @@ Class Sensor{
 			$nameparts[]="p";
 			}
 		$this->params["mrtg_name"]=implode(".",$nameparts);
-		$url=($_SERVER["https"] ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
+		$url=(isset($_SERVER["https"]) ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
 		$urlparts[]="config=1";
 		$this->params["cfgurl"]=$url . "?" . implode("&",$urlparts);
@@ -410,20 +410,20 @@ Class Sensor{
 			$result[$i]=$this->tcpping($address,$port);
 		}
                 if($result){
-                	print_r($results);
-			$desc="ping time to $address:$port";
-			$min=min($result);
-			$max=max($result);
-                        $this->params["value1"]=(int)$min;
-                        $this->params["value2"]=(int)$max;
-                        $this->params["name1"]="MIN $desc";
-                        $this->params["name2"]="MAX $desc";
-                        $this->params["description"]=$desc;
-                        $this->params["mrtg_unit"]="sec";
-                        $this->params["mrtg_options"].=",gauge,nopercent";
-                        $this->params["mrtg_maxbytes"]=1000000000;
-                        $this->params["mrtg_kmg"]="u,m,,k,M,G";
-                        return $this->params;
+                	//print_r($result);
+					$desc="ping time to $address:$port";
+					$min=min($result);
+					$max=max($result);
+                    $this->params["value1"]=(int)$min;
+                    $this->params["value2"]=(int)$max;
+                    $this->params["name1"]="MIN $desc";
+                    $this->params["name2"]="MAX $desc";
+                    $this->params["description"]=$desc;
+                    $this->params["mrtg_unit"]="sec";
+                    $this->params["mrtg_options"].=",gauge,nopercent";
+                    $this->params["mrtg_maxbytes"]=1000000000;
+                    $this->params["mrtg_kmg"]="u,m,,k,M,G";
+                    return $this->params;
                 } else {
                         return false;
                 }
