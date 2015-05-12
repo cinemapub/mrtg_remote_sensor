@@ -364,7 +364,7 @@ Class Sensor{
 		$server=strtolower($this->params["server"]);
 		$ss=New OStools();
 		$result=$ss->proccount($filter);
-        if($result){
+		if($result){
 			$server=strtolower($this->params["server"]);
 			$desc="$server: server load";
 			$descf=$desc;

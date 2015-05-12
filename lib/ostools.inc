@@ -136,12 +136,12 @@ Class OStools {
 		case "Darwin":
 		case "Linux":
 		default:
-			$result=cmdline("ps | wc -l");
-			$total=$count($result)-3; // remove 1st line, and our own 'ps' and 'wc' process
+			trace("OSSensor::proccount : *nix method - ps -ax");
+			$psall=cmdline("ps -ax | wc -l");
+			$total=$psall[0]-3; // remove 1st line, and our own 'ps' and 'wc' process
 			if($filter){
-				$result=cmdline("ps | grep \"$filter\" | wc -l");
-				$nb=count($result);
-				$nb=$nb-1; // remove the 'grep' process we created ourselves
+				$psfilter=cmdline("ps -ax | grep \"$filter\" | wc -l");
+				$nb=$psfilter[0] - 1; // remove the 'grep' process we created ourselves
 			} else {
 				$nb=$total;
 			}
@@ -151,6 +151,7 @@ Class OStools {
 				"filtered"  => $nb,
 				);
 		}
+		trace($result);
 		return $result;
 	}
 
