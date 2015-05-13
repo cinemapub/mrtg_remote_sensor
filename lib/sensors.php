@@ -9,8 +9,8 @@ Class Sensor{
 	function __construct(){
 		$ss=New OStools();
 		$urlparts=Array();
-		$nameparts[]=$_SERVER['SERVER_NAME'];
 		$this->params["server"]=$_SERVER['SERVER_NAME'];
+		$nameparts[]=str_replace("www.","",$_SERVER['SERVER_NAME']);
 		$key=getparam("key","cpu");
 		$nameparts[]=$key;
 		$urlparts[]="key=$key";
