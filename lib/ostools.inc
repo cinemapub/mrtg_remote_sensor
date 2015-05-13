@@ -11,6 +11,39 @@ Class OStools {
 		//print_r($this);
 	}
 
+	function memusage(){
+		switch($this->os){
+		case "WINNT":
+			trace("OSSensor::memusage : Windows method - wmic");
+			$total=$this->wmic("OS get TotalVisibleMemorySize","int");
+			$free =$this->wmic("OS get FreePhysicalMemory","int");
+			
+   			$result=Array(
+				"OS"	=> $this->os,
+				"free"  => $free,
+				"used"  => $total-$free,
+				"total" => $total,
+				);
+			break;;
+		case "Darwin":
+		case "Linux":
+		default:
+			trace("OSSensor::memusage : linux method - free");
+			$result=cmdline("free | grep Mem");
+			$line=trim($result[0]);
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($mem,$total,$used,$free,$percent,$shared,$buffers)=explode("\t",$line);
+			$result=Array(
+				"OS"	=> $this->os,
+				"free"  => $free,
+				"used"  => $used,
+				"total" => $total,
+				);
+		}
+		trace("OSSensor::memusage : used mem is " . $result["used"]);
+		return $result;
+	}
+	
 	function cpuload(){
 		switch($this->os){
 		case "WINNT":
@@ -80,6 +113,127 @@ Class OStools {
 		return $numCpus;
 	}
 
+	function proccount($filter=false){
+		switch($this->os){
+		case "WINNT":
+			trace("OSSensor::proccount : Windows method - tasklist");
+			$tasks=cmdline("tasklist");
+			$total=count($tasks)-3; // remove 1st 3 lines,
+			if($filter){
+				$nb=0;
+				foreach($tasks as $task){
+					if(stristr($task,$filter))	$nb++;
+				}
+			} else {
+				$nb=$total;
+			}
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"  => $total,
+				"filtered"  => $nb,
+				);
+			break;;
+		case "Darwin":
+		case "Linux":
+		default:
+			trace("OSSensor::proccount : *nix method - ps -ax");
+			$psall=cmdline("ps -ax | wc -l");
+			$total=$psall[0]-3; // remove 1st line, and our own 'ps' and 'wc' process
+			if($filter){
+				$psfilter=cmdline("ps -ax | grep \"$filter\" | wc -l");
+				$nb=$psfilter[0] - 1; // remove the 'grep' process we created ourselves
+			} else {
+				$nb=$total;
+			}
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"  => $total,
+				"filtered"  => $nb,
+				);
+		}
+		trace($result);
+		return $result;
+	}
+
+	function diskusage($path){
+		switch($this->os){
+		case "WINNT":
+			$disk=strtolower(substr($path,0,1).":");
+			trace("OSSensor::proccount : Windows method - wmi for [$disk]");
+			$lines=cmdline("wmic logicaldisk get size,freespace,caption");
+			$free=0;
+			$total=0;
+			foreach($lines as $line){
+				$line=strtolower(trim($line));
+				if(!strstr($line," "))	continue;
+				$line=preg_replace("#\s\s*#","\t",$line);
+				list($dname,$dfree,$dtotal)=explode("\t",$line);
+				if($dname==$disk){
+					$free=$dfree;
+					$total=$dtotal;
+				}
+			}
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"	=> round($total/1000),
+				"free"	=> round($free/1000),
+				"used"	=> round(($total-$free)/1000),
+				);
+			break;;
+		case "Darwin":
+		case "Linux":
+		default:
+			// better use df -m because some path names can be so long they leave no space between name and #blocks
+			$result=cmdline("df -m $path");
+			$line=$result[1];
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"	=> $blocks*1024,
+				"used"	=> $used*1024,
+				"free"	=> ($blocks-$used)*1024,
+				);
+		}
+		return $result;
+	}
+	
+	function foldersize($path,$recursive=false){
+		$diskusage=$this->diskusage($path);
+		$total=$diskusage["total"];
+		switch($this->os){
+		case "WINNT":
+			trace("OSSensor::proccount : Windows method - wmi for [$path]");
+			$obj = new COM ( 'scripting.filesystemobject' );
+			if ( is_object ( $obj ) )
+			{
+				$ref = $obj->getfolder($path);
+				$size=$ref->size;
+				$obj = null;
+			}
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"	=> $total,
+				"size"	=> round($size/1000),
+				);
+			break;;
+		case "Darwin":
+		case "Linux":
+		default:
+			$result=cmdline("du -skD $path",false,60*15);
+			$line=$result[0];
+			$line=preg_replace("#\s\s*#","\t",$line);
+			list($size,$path)=explode("\t",$line);
+			$result=Array(
+				"OS"	=> $this->os,
+				"total"	=> $total,
+				"size"	=> $size,
+				);
+		}
+		//print_r($result);
+		return $result;
+	}
+
 	function cpuinfo(){
 		$numCpus = 1;
 
@@ -108,7 +262,7 @@ Class OStools {
 			$cpulines = file_get_contents('/proc/cpuinfo');
 			trace($cpulines);
 			
-			$bogomips=$this->grepinfo("BogoMIPS",1000);			
+			$bogomips=$this->grepinfo("bogomips",1000);
 			$numcores=$this->grepinfo("cpu cores",1);
 			$cpughz=$this->grepinfo("cpu MHz",$bogomips/$numcores);
 			$cpughz=round($cpughz/1000,1);
@@ -122,13 +276,13 @@ Class OStools {
 			trace("OSSensor::cpuinfo : Windows method: wmic");
 			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
 			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["cpu ghz"];
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
 		default:
 			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
 			$cpuinfo["cores"]=$this->sysctl("hw.ncpu");
 			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cpu cores"] * $cpuinfo["cpu ghz"];
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 		}
 		trace($cpuinfo);
 		return $cpuinfo;
@@ -142,18 +296,21 @@ Class OStools {
 			// Windows machines
 			// LastBootUpTime
 			// 20150122133550.626398+060
+			// 20150420094411.626398+120
 			trace("OSSensor::uptime : Windows method: wmic");
 			$lastboot=$this->wmic("os get lastbootuptime");
-			$bdate=midstr($lastboot,0,4)."-".midstr($lastboot,4,2)."-".midstr($lastboot,6,2)." ".midstr($lastboot,8,2).":".midstr($lastboot,10,2);
+			$bdate=substr($lastboot,0,4)."-".substr($lastboot,4,2)."-".substr($lastboot,6,2)." ".substr($lastboot,8,2).":".substr($lastboot,10,2);
+			//trace("OSSensor::uptime: [$lastboot] => [$bdate]");
 			$btime=strtotime($bdate);
 			$since=time()-$btime;
 			$sincedays=$since/(3600*24);
 			switch(true){
 			case $sincedays < 1:	$uptime=round($since/3600,1) . " hours";	break;;
-			case $sincedays < 60:	$uptime=round($since/3600*24,1) . " days";	break;;
-			case $sincedays < 365:	$uptime=round($since/3600*24*7,1) . " weeks";	break;;
-			default:				$uptime=round($since/3600*24*365,1) . " years";
+			case $sincedays < 60:	$uptime=round($since/(3600*24),1) . " days";	break;;
+			case $sincedays < 365:	$uptime=round($since/(3600*24*7),1) . " weeks";	break;;
+			default:				$uptime=round($since/(3600*24*365),1) . " years";
 			}
+			break;;
 		case "Darwin":
 		case "Linux":
 			// Linux machines
@@ -183,7 +340,8 @@ Class OStools {
 			trace("OSSensor::battery : Windows method: wmic");
 			// to be implemented
 			$lastboot=$this->wmic("os get lastbootuptime");
-			$result["error"]="not yet implemented";
+			$result=false;
+			break;;
 		case "Darwin":
 			if (file_exists('/usr/sbin/system_profiler')){
 				trace("OSSensor::battery : MacOSX method: system_profiler");
@@ -228,25 +386,26 @@ Class OStools {
 	private function wmic($command,$type="string"){
 		if($this->os<>"WINNT")	return false;
 		$val=false;
-		$process = @popen('wmic $command', 'rb');
-		if ($process){
-			fgets($process); // skip^first line with field title
+		$return=cmdline("wmic $command");
+
+		if ($return){
+			//trace($return);
 			switch($type){
 			case "int":
 			case "integer":
-				$val = intval(fgets($process));
+				$val = intval($return[1]);
 				break;;
 			default:
-				$val = trim(fgets($process));
+				$val = trim($return[1]);
 			}
-			pclose($process);
 		}
+		trace("wmic: [wmic $command] => '$val'");
 		return $val;
 	}
 
 	private function grepinfo($param,$default=false,$file="/proc/cpuinfo"){
 		if($this->os<>"Linux")	return false;
-		$output=cmdline("grep \"$param\" $file");
+		$output=cmdline("grep -i \"$param\" $file");
 		$val=$default;
 		if($output){
 			foreach($output as $line){
@@ -261,23 +420,24 @@ Class OStools {
 	private function sysctl($key,$type="string"){
 		if($this->os<>"Darwin")	return false;
 		$val=false;
-		$process = @popen('sysctl -a', 'rb');
-		if ($process){
-			$output = stream_get_contents($process);
+		$output = cmdline("sysctl -a | grep '$key:'");
+		trace($output);
+		if ($output){
+			$line=$output[0];
+			list($key,$val)=explode(":",$line);
 			switch($type){
 			case "int":
 			case "integer":
-				preg_match('/$key: (\d+)/', $output, $matches);
+				$val=(int)$val;
 				break;;
 			default:
-				preg_match('/$key: (.+)$/', $output, $matches);
+				$val=trim($val);
 			}
-			if ($matches){
-				$val=$matches[1][0];
-			}
-			pclose($process);
+			return $val;
+		} else {
+			trace("sysctl: nothing found for $key");
+			return false;
 		}
-		return $val;
 	}
 
 	private function parse_profiler($lines){
