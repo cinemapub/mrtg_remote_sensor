@@ -8,7 +8,8 @@ Class OStools {
 		$this->uname=php_uname("s");
 		$this->version=php_uname("v");
 		$this->host=php_uname("n");
-		//print_r($this);
+		$this->server=$_SERVER["SERVER_SIGNATURE"]$;
+		trace($this);
 	}
 
 	function memusage(){
@@ -105,9 +106,12 @@ Class OStools {
 			trace("OSSensor::cpucount : Windows method: wmic");
 			$numCpus=$this->wmic("cpu get NumberOfCores","int");
 			break;;
-		default:
+		case $this->os=="Darwin":
 			trace("OSSensor::cpucount : MacOSX method: sysctl");
 			$numCpus=$this->sysctl("hw.ncpu","int");
+		default:
+			trace("OSSensor::cpucount: no source for this info - so just a guess");
+			$numCpus=1;
 		}
 		trace("OSSensor::cpucount : $numCpus CPUs detected");
 		return $numCpus;
@@ -137,7 +141,8 @@ Class OStools {
 		case "Linux":
 		default:
 			trace("OSSensor::proccount : *nix method - ps -ax");
-			$psall=cmdline("ps -ax | wc -l");
+			//$psall=cmdline("ps -ax | wc -l");
+			$psall=cmdline("ps | wc -l"); // because Synology does not have options for 'ps'
 			$total=$psall[0]-3; // remove 1st line, and our own 'ps' and 'wc' process
 			if($filter){
 				$psfilter=cmdline("ps -ax | grep \"$filter\" | wc -l");
@@ -245,6 +250,7 @@ Class OStools {
 		switch(true){
 		case is_file('/proc/cpuinfo'):
 			// Linux machines
+			// works on QNAP - but not on Synology (because of php permissions)
 			trace("OSSensor::cpuinfo : Linux method: /proc/cpuinfo");
 			/*
 			Single Core ARM:
@@ -278,11 +284,16 @@ Class OStools {
 			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
 			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
-		default:
+		case $this->os=="Darwin":
 			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
 			$cpuinfo["cores"]=$this->sysctl("hw.ncpu");
 			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
 			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
+		default:
+			trace("OSSensor::cpuinfo : no source for CPU info");
+			$cpuinfo["cores"]=1;
+			$cpuinfo["ghz"]=1200;
+			$cpuinfo["bogomips"]=1200;
 		}
 		trace($cpuinfo);
 		return $cpuinfo;
