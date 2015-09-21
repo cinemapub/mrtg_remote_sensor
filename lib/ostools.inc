@@ -8,7 +8,7 @@ Class OStools {
 		$this->uname=php_uname("s");
 		$this->version=php_uname("v");
 		$this->host=php_uname("n");
-		$this->server=$_SERVER["SERVER_SIGNATURE"]$;
+		$this->server=$_SERVER["SERVER_SIGNATURE"];
 		trace($this);
 	}
 
