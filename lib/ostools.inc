@@ -4,50 +4,56 @@ include_once("tools.php");
 Class OStools {
 
 	function __construct(){
-		$this->os=PHP_OS;
-		$this->uname=php_uname("s");
-		$this->version=php_uname("v");
-		$this->host=php_uname("n");
-		$this->server=$_SERVER["SERVER_SIGNATURE"];
-		trace($this);
-	}
+		$this->result["os"]=strtolower(php_uname("s"));
+		$this->result["os_version"]=php_uname("v");
+		if(is_dir("/usr/syno/synoman/")){
+			$this->result["os"]="busybox";
+			$this->result["os_version"]="Synology";
+		}
+		$this->result["host_name"]=php_uname("n");
+		$this->result["server_name"]=$_SERVER["SERVER_NAME"];
+		$this->result["server_addr"]=$_SERVER["SERVER_ADDR"];
+		$this->result["php_version"]=phpversion();
+		}
 
+	//-------------------------------------------------------------
 	function memusage(){
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			trace("OSSensor::memusage : Windows method - wmic");
 			$total=$this->wmic("OS get TotalVisibleMemorySize","int");
 			$free =$this->wmic("OS get FreePhysicalMemory","int");
-			
-   			$result=Array(
-				"OS"	=> $this->os,
-				"free"  => $free,
-				"used"  => $total-$free,
-				"total" => $total,
-				);
+			$this->result["free"]=$free;
+			$this->result["used"]=$total-$free;
+			$this->result["total"]=$total;
 			break;;
-		case "Darwin":
-		case "Linux":
-		default:
+		case "darwin":
+		case "linux":
+		case "busybox":
 			trace("OSSensor::memusage : linux method - free");
 			$result=cmdline("free | grep Mem");
 			$line=trim($result[0]);
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($mem,$total,$used,$free,$percent,$shared,$buffers)=explode("\t",$line);
-			$result=Array(
-				"OS"	=> $this->os,
-				"free"  => $free,
-				"used"  => $used,
-				"total" => $total,
-				);
+			$this->result["free"]=$free;
+			$this->result["used"]=$used;
+			$this->result["total"]=$total;
+			break;;
+		default:
+			trace("OSSensor::memusage : no source for data");
+			$this->result["free"]=0;
+			$this->result["used"]=0;
+			$this->result["total"]=0;
 		}
-		trace("OSSensor::memusage : used mem is " . $result["used"]);
-		return $result;
+		trace("OSSensor::memusage -- done");
+		trace($this->result);
+		return $this->result;
 	}
 	
+	//-------------------------------------------------------------
 	function cpuload(){
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			trace("OSSensor::cpuload : Windows method - Win32_Processor");
 			$wmi = new COM("Winmgmts://");
             $server = $wmi->execquery("SELECT LoadPercentage FROM Win32_Processor");
@@ -60,55 +66,50 @@ Class OStools {
                 $load_min=min($load_min,$cpu->loadpercentage);
             }
             $load = round($load_total/$cpu_num);
-   			$result=Array(
-				"OS"	=> $this->os,
-				"1min"  => round($load,3),
-				"5min"  => round(($load+$load_min)/2,3), // not really the same as load over 5min , but yeah, we can't have that
-				"15min" => round(($load+2*$load_min)/3,3), // not really the same as load over 15min , but yeah, we can't have that
-				);
+			$this->result["1min"]=round($load,3);
+			$this->result["5min"]=round(($load+$load_min)/2,3); // not really the same as load over 5min , but yeah, we can't have that
+			$this->result["15min"]=round(($load+2*$load_min)/3,3); // not really the same as load over 15min , but yeah, we can't have that
 			break;;
-		case "Darwin":
-		case "Linux":
+		case "darwin":
+		case "linux":
+		case "busybox":
 			trace("OSSensor::cpuload : Linux/MacOSX method - sys_getloadavg");
 			$load=sys_getloadavg();
-			$result=Array(
-				"OS"	=> $this->os,
-				"1min"  => round($load[0],3),
-				"5min"  => round($load[1],3),
-				"15min" => round($load[2],3),
-				);
+			$this->result["1min"]=round($load[0],3);
+			$this->result["5min"]=round($load[1],3);
+			$this->result["15min"]=round($load[2],3);
 			break;;
 		default:
-			$result=Array(
-				"OS"	=> $this->os,
-				"1min"  => 0,
-				"5min"  => 0,
-				"15min" => 0,
-				);
+			$this->result["1min"]=0;
+			$this->result["5min"]=0;
+			$this->result["15min"]=0;
 		}
-		trace("OSSensor::cpuload : load is " . $result["1min"]);
-		return $result;
+		trace("OSSensor::cpuload -- done");
+		trace($this->result);
+		return $this->result;
 	}
 
+	//-------------------------------------------------------------
 	function cpucount(){
 		$numCpus = 1;
 
 		switch(true){
-		case is_file('/proc/cpuinfo'):
-			// Linux machines
+		case $this->result["os"]=="winnt":
+			// Windows machines
+			trace("OSSensor::cpucount : Windows method: wmic");
+			$numCpus=$this->wmic("cpu get NumberOfCores","int");
+			break;;
+		case $this->result["os"]=="darwin":
+			trace("OSSensor::cpucount : MacOSX method: sysctl");
+			$numCpus=$this->sysctl("hw.ncpu","int");
+			break;;
+		case is_readable('/proc/cpuinfo'):
+			// Linux machines, if PHP permissions are ok for /proc
 			trace("OSSensor::cpucount : Linux method: /proc/cpuinfo");
 			$cpuinfo = file_get_contents('/proc/cpuinfo');
 			preg_match_all('/^processor/m', $cpuinfo, $matches);
 			$numCpus = count($matches[0]);
 			break;;
-		case $this->os=="WINNT":
-			// Windows machines
-			trace("OSSensor::cpucount : Windows method: wmic");
-			$numCpus=$this->wmic("cpu get NumberOfCores","int");
-			break;;
-		case $this->os=="Darwin":
-			trace("OSSensor::cpucount : MacOSX method: sysctl");
-			$numCpus=$this->sysctl("hw.ncpu","int");
 		default:
 			trace("OSSensor::cpucount: no source for this info - so just a guess");
 			$numCpus=1;
@@ -117,9 +118,10 @@ Class OStools {
 		return $numCpus;
 	}
 
+	//-------------------------------------------------------------
 	function proccount($filter=false){
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			trace("OSSensor::proccount : Windows method - tasklist");
 			$tasks=cmdline("tasklist");
 			$total=count($tasks)-3; // remove 1st 3 lines,
@@ -131,18 +133,13 @@ Class OStools {
 			} else {
 				$nb=$total;
 			}
-			$result=Array(
-				"OS"	=> $this->os,
-				"total"  => $total,
-				"filtered"  => $nb,
-				);
+			$this->result["total"]=$total;
+			$this->result["filtered"]=$nb;
 			break;;
-		case "Darwin":
-		case "Linux":
-		default:
+		case "darwin":
+		case "linux":
 			trace("OSSensor::proccount : *nix method - ps -ax");
-			//$psall=cmdline("ps -ax | wc -l");
-			$psall=cmdline("ps | wc -l"); // because Synology does not have options for 'ps'
+			$psall=cmdline("ps -ax | wc -l");
 			$total=$psall[0]-3; // remove 1st line, and our own 'ps' and 'wc' process
 			if($filter){
 				$psfilter=cmdline("ps -ax | grep \"$filter\" | wc -l");
@@ -150,19 +147,34 @@ Class OStools {
 			} else {
 				$nb=$total;
 			}
-			$result=Array(
-				"OS"	=> $this->os,
-				"total"  => $total,
-				"filtered"  => $nb,
-				);
+			$this->result["total"]=$total;
+			$this->result["filtered"]=$nb;
+			break;;
+		case "busybox":
+			trace("OSSensor::proccount : *nix method - ps");
+			$psall=cmdline("ps | wc -l"); // because Synology does not have options for 'ps'
+			$total=$psall[0]-3; // remove 1st line, and our own 'ps' and 'wc' process
+			if($filter){
+				$psfilter=cmdline("ps | grep \"$filter\" | wc -l");
+				$nb=$psfilter[0] - 1; // remove the 'grep' process we created ourselves
+			} else {
+				$nb=$total;
+			}
+			$this->result["total"]=$total;
+			$this->result["filtered"]=$nb;
+			break;;
+		default:
+			$this->result["total"]=0;
+			$this->result["filtered"]=0;
 		}
-		trace($result);
-		return $result;
+		trace($this->result);
+		return $this->result;
 	}
 
+	//-------------------------------------------------------------
 	function diskusage($path){
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			$disk=strtolower(substr($path,0,1).":");
 			trace("OSSensor::proccount : Windows method - wmi for [$disk]");
 			$lines=cmdline("wmic logicaldisk get size,freespace,caption");
@@ -179,14 +191,14 @@ Class OStools {
 				}
 			}
 			$result=Array(
-				"OS"	=> $this->os,
+				"OS"	=> $this->result["os"],
 				"total"	=> round($total/1000),
 				"free"	=> round($free/1000),
 				"used"	=> round(($total-$free)/1000),
 				);
 			break;;
-		case "Darwin":
-		case "Linux":
+		case "darwin":
+		case "linux":
 		default:
 			// better use df -m because some path names can be so long they leave no space between name and #blocks
 			$result=cmdline("df -m $path");
@@ -194,7 +206,7 @@ Class OStools {
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
 			$result=Array(
-				"OS"	=> $this->os,
+				"OS"	=> $this->result["os"],
 				"total"	=> $blocks*1024,
 				"used"	=> $used*1024,
 				"free"	=> ($blocks-$used)*1024,
@@ -203,11 +215,12 @@ Class OStools {
 		return $result;
 	}
 	
+	//-------------------------------------------------------------
 	function foldersize($path,$recursive=false){
 		$diskusage=$this->diskusage($path);
 		$total=$diskusage["total"];
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			trace("OSSensor::proccount : Windows method - wmi for [$path]");
 			$obj = new COM ( 'scripting.filesystemobject' );
 			if ( is_object ( $obj ) )
@@ -217,20 +230,20 @@ Class OStools {
 				$obj = null;
 			}
 			$result=Array(
-				"OS"	=> $this->os,
+				"OS"	=> $this->result["os"],
 				"total"	=> $total,
 				"size"	=> round($size/1000),
 				);
 			break;;
-		case "Darwin":
-		case "Linux":
+		case "darwin":
+		case "linux":
 		default:
 			$result=cmdline("du -skD $path",false,60*15);
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($size,$path)=explode("\t",$line);
 			$result=Array(
-				"OS"	=> $this->os,
+				"OS"	=> $this->result["os"],
 				"total"	=> $total,
 				"size"	=> $size,
 				);
@@ -239,6 +252,7 @@ Class OStools {
 		return $result;
 	}
 
+	//-------------------------------------------------------------
 	function cpuinfo(){
 		$numCpus = 1;
 
@@ -248,7 +262,20 @@ Class OStools {
 			"ghz" => 1,
 			);
 		switch(true){
-		case is_file('/proc/cpuinfo'):
+		case $this->result["os"]=="winnt":
+			// Windows machines
+			trace("OSSensor::cpuinfo : Windows method: wmic");
+			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
+			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
+			break;;
+		case $this->result["os"]=="darwin":
+			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
+			$cpuinfo["cores"]=$this->sysctl("hw.ncpu");
+			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
+			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
+			break;;
+		case is_readable('/proc/cpuinfo'):
 			// Linux machines
 			// works on QNAP - but not on Synology (because of php permissions)
 			trace("OSSensor::cpuinfo : Linux method: /proc/cpuinfo");
@@ -277,18 +304,6 @@ Class OStools {
 			$cpuinfo["ghz"]=$cpughz;
 			$cpuinfo["cores"]=$numcores;
 			break;;
-		case $this->os=="WINNT":
-			// Windows machines
-			trace("OSSensor::cpuinfo : Windows method: wmic");
-			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
-			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
-			break;;
-		case $this->os=="Darwin":
-			trace("OSSensor::cpuinfo : MacOSX method: sysctl");
-			$cpuinfo["cores"]=$this->sysctl("hw.ncpu");
-			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
-			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 		default:
 			trace("OSSensor::cpuinfo : no source for CPU info");
 			$cpuinfo["cores"]=1;
@@ -299,11 +314,12 @@ Class OStools {
 		return $cpuinfo;
 	}
 
+	//-------------------------------------------------------------
 	function uptime(){
 		$uptime = 0;
 
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			// Windows machines
 			// LastBootUpTime
 			// 20150122133550.626398+060
@@ -322,8 +338,9 @@ Class OStools {
 			default:				$uptime=round($since/(3600*24*365),1) . " years";
 			}
 			break;;
-		case "Darwin":
-		case "Linux":
+		case "darwin":
+		case "linux":
+		case "busybox":
 			// Linux machines
 			trace("OSSensor::uptime : Linux method: /usr/bin/uptime");
 			$output = cmdline('/usr/bin/uptime');
@@ -343,17 +360,18 @@ Class OStools {
 		return $uptime;
 	}
 
+	//-------------------------------------------------------------
 	function battery(){
 		$result=Array();
-		switch($this->os){
-		case "WINNT":
+		switch($this->result["os"]){
+		case "winnt":
 			// Windows machines
 			trace("OSSensor::battery : Windows method: wmic");
 			// to be implemented
 			$lastboot=$this->wmic("os get lastbootuptime");
 			$result=false;
 			break;;
-		case "Darwin":
+		case "darwin":
 			if (file_exists('/usr/sbin/system_profiler')){
 				trace("OSSensor::battery : MacOSX method: system_profiler");
 				$output=cmdline("system_profiler SPPowerDataType");
@@ -383,7 +401,7 @@ Class OStools {
 			$result["battery_charge_%"]=round(100*$result["battery_charge"]/$result["battery_capacity"],3);
 			ksort($result);
 
-		case "Linux":
+		case "linux":
 			// Linux machines
 			$result["error"]="not yet implemented";
 			break;;
@@ -394,8 +412,9 @@ Class OStools {
 		return $result;
 	}
 
+	//-------------------------------------------------------------
 	private function wmic($command,$type="string"){
-		if($this->os<>"WINNT")	return false;
+		if($this->result["os"]<>"winnt")	return false;
 		$val=false;
 		$return=cmdline("wmic $command");
 
@@ -414,8 +433,10 @@ Class OStools {
 		return $val;
 	}
 
+	//-------------------------------------------------------------
 	private function grepinfo($param,$default=false,$file="/proc/cpuinfo"){
-		if($this->os<>"Linux")	return false;
+		if($this->result["os"]=="winnt")	return false;
+		if($this->result["os"]=="darwin")	return false;
 		$output=cmdline("grep -i \"$param\" $file");
 		$val=$default;
 		if($output){
@@ -428,8 +449,9 @@ Class OStools {
 		return $val;
 	}
 
+	//-------------------------------------------------------------
 	private function sysctl($key,$type="string"){
-		if($this->os<>"Darwin")	return false;
+		if($this->result["os"]<>"darwin")	return false;
 		$val=false;
 		$output = cmdline("sysctl -a | grep '$key:'");
 		trace($output);
@@ -451,6 +473,7 @@ Class OStools {
 		}
 	}
 
+	//-------------------------------------------------------------
 	private function parse_profiler($lines){
 		$previndent=-1;
 		$parsed=Array();
@@ -485,6 +508,7 @@ Class OStools {
 		return $parsed;
 	}
 	
+	//-------------------------------------------------------------
 	private function find_val($pattern,$subject){
 		$results=preg_grep("/$pattern/", $subject);
 		if(!$results){
@@ -499,6 +523,7 @@ Class OStools {
 		return $val;
 	}
 
+	//-------------------------------------------------------------
 	private function find_bool($pattern,$subject){
 		$results=preg_grep("/$pattern/", $subject);
 		if(!$results)	return false;
