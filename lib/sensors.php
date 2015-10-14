@@ -9,27 +9,27 @@ Class Sensor{
 	function __construct(){
 		$ss=New OStools();
 		$urlparts=Array();
-		$this->params["server"]=$_SERVER['SERVER_NAME'];
-		$nameparts[]=str_replace("www.","",$_SERVER['SERVER_NAME']);
 		$key=getparam("key","cpu");
 		$nameparts[]=$key;
-		$urlparts[]="key=$key";
-		$param=getparam("param");
-		if($param){
-			$urlparts[]="param=$param";
-			$nameparts[]=basename($param);
-			}
-		$options=getparam("options");
-		if($options){
-			$urlparts[]="options=$options";
-			$nameparts[]=substr(md5($options),0,4);
-			}
 		$percent=getparam("percent");
 		if($percent){
 			$urlparts[]="percent=1";
 			$nameparts[]="p";
 			}
-		$this->params["mrtg_name"]=preg_replace("#([^\w\d_\-\.]+)#","",implode(".",$nameparts));
+		$this->params["server"]=$_SERVER['SERVER_NAME'];
+		$nameparts[]=$this->digest($_SERVER['SERVER_NAME'],2);
+		$urlparts[]="key=$key";
+		$param=getparam("param");
+		if($param){
+			$urlparts[]="param=$param";
+			$nameparts[]=$this->digest($param);
+			}
+		$options=getparam("options");
+		if($options){
+			$urlparts[]="options=$options";
+			$nameparts[]=$this->digest($options);
+			}
+		$this->params["mrtg_name"]=implode(".",$nameparts);
 		$url=(isset($_SERVER["https"]) ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
 		$urlparts[]="config=1";
@@ -444,6 +444,9 @@ Class Sensor{
 
 	// ---------- INTERNAL FUNCTIONS
 
+	function digest($text,$length=4){
+		return substr(sha1($text),0,$length);
+	}
 	function parse_options($options){
 		// parse key1=val1,key2=val2,key3
 		if(!$options)	return false;
