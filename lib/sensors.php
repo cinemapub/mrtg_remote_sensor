@@ -393,7 +393,11 @@ Class Sensor{
 		}
                 if($result){
                 	//print_r($result);
-					$desc="ping time to $address:$port";
+					if($port==80){
+						$desc="ping time to $address";
+					} else {
+						$desc="ping time to $address:$port";
+					}
 					$min=min($result);
 					$max=max($result);
                     $this->params["value1"]=(int)$min;
