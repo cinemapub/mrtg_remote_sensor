@@ -10,10 +10,14 @@ Class OStools {
 			$this->result["os"]="busybox";
 			$this->result["os_version"]="Synology";
 		}
+		if($this->result["os"]=="windows nt"){
+			$this->result["os"]="winnt";
+		}
 		$this->result["host_name"]=php_uname("n");
 		$this->result["server_name"]=$_SERVER["SERVER_NAME"];
 		$this->result["server_addr"]=$_SERVER["SERVER_ADDR"];
 		$this->result["php_version"]=phpversion();
+		trace(sprintf("OStools::__construct: detected OS [%s - %s]",$this->result["os"],$this->result["os_version"]));
 		}
 
 	//-------------------------------------------------------------
@@ -21,7 +25,7 @@ Class OStools {
 		switch($this->result["os"]){
 		case "winnt":
 			trace("OSSensor::memusage : Windows method - wmic");
-			$total=$this->wmic("OS get TotalVisibleMemorySize","int");
+			$total=$this->wmic("OS get TotalVisibleMemorySize","int",3600); // normally doesn't change
 			$free =$this->wmic("OS get FreePhysicalMemory","int");
 			$this->result["free"]=$free;
 			$this->result["used"]=$total-$free;
@@ -97,7 +101,7 @@ Class OStools {
 		case $this->result["os"]=="winnt":
 			// Windows machines
 			trace("OSSensor::cpucount : Windows method: wmic");
-			$numCpus=$this->wmic("cpu get NumberOfCores","int");
+			$numCpus=$this->wmic("cpu get NumberOfCores","int",3600);
 			break;;
 		case $this->result["os"]=="darwin":
 			trace("OSSensor::cpucount : MacOSX method: sysctl");
@@ -265,8 +269,8 @@ Class OStools {
 		case $this->result["os"]=="winnt":
 			// Windows machines
 			trace("OSSensor::cpuinfo : Windows method: wmic");
-			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int");
-			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int")/1000,1);
+			$cpuinfo["cores"]=$this->wmic("cpu get NumberOfCores","int",3600);
+			$cpuinfo["ghz"]=round($this->wmic("cpu get MaxClockSpeed","int",3600)/1000,1);
 			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
 		case $this->result["os"]=="darwin":
@@ -324,10 +328,12 @@ Class OStools {
 			// LastBootUpTime
 			// 20150122133550.626398+060
 			// 20150420094411.626398+120
+			// 20151029154733.626398+060 => 2015-10-29 15:4733.626398+060
 			trace("OSSensor::uptime : Windows method: wmic");
-			$lastboot=$this->wmic("os get lastbootuptime");
-			$bdate=substr($lastboot,0,4)."-".substr($lastboot,4,2)."-".substr($lastboot,6,2)." ".substr($lastboot,8,2).":".substr($lastboot,10,2);
-			//trace("OSSensor::uptime: [$lastboot] => [$bdate]");
+			$lastboot=$this->wmic("os get lastbootuptime","string",3600);
+			$bdate=substr($lastboot,0,4)."-".substr($lastboot,4,2)."-".substr($lastboot,6,2)." ";
+			$bdate.=substr($lastboot,8,2).":".substr($lastboot,10,2).":".substr($lastboot,12,2);
+			trace("OSSensor::uptime: [$lastboot] => [$bdate]");
 			$btime=strtotime($bdate);
 			$since=time()-$btime;
 			$sincedays=$since/(3600*24);
@@ -368,7 +374,6 @@ Class OStools {
 			// Windows machines
 			trace("OSSensor::battery : Windows method: wmic");
 			// to be implemented
-			$lastboot=$this->wmic("os get lastbootuptime");
 			$result=false;
 			break;;
 		case "darwin":
@@ -413,10 +418,10 @@ Class OStools {
 	}
 
 	//-------------------------------------------------------------
-	private function wmic($command,$type="string"){
+	private function wmic($command,$type="string",$cachesecs=30){
 		if($this->result["os"]<>"winnt")	return false;
 		$val=false;
-		$return=cmdline("wmic $command");
+		$return=cmdline("wmic $command",false,$cachesecs);
 
 		if ($return){
 			//trace($return);
