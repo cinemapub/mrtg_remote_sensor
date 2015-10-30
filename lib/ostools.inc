@@ -53,26 +53,21 @@ Class OStools {
 		trace($this->result);
 		return $this->result;
 	}
-	
+
 	//-------------------------------------------------------------
 	function cpuload(){
 		switch($this->result["os"]){
 		case "winnt":
-			trace("OSSensor::cpuload : Windows method - Win32_Processor");
-			$wmi = new COM("Winmgmts://");
-            $server = $wmi->execquery("SELECT LoadPercentage FROM Win32_Processor");
-            $cpu_num = 0;
-            $load_total = 0;
-            $load_min=10000;
-            foreach($server as $cpu){
-                $cpu_num++;
-                $load_total += $cpu->loadpercentage;
-                $load_min=min($load_min,$cpu->loadpercentage);
-            }
-            $load = round($load_total/$cpu_num);
-			$this->result["1min"]=round($load,3);
-			$this->result["5min"]=round(($load+$load_min)/2,3); // not really the same as load over 5min , but yeah, we can't have that
-			$this->result["15min"]=round(($load+2*$load_min)/3,3); // not really the same as load over 15min , but yeah, we can't have that
+			trace("OSSensor::cpuload : Windows method - wmic:LoadPercentage");
+			$load[0]=$this->wmic("cpu get LoadPercentage","int",0);
+			sleep(1);
+			$load[1]=$this->wmic("cpu  get LoadPercentage","int",1000);
+			$load_avg=($load[0]+$load[1])/2;
+			$load_min=min($load);
+			$load_max=max($load);
+			$this->result["1min"]=round($load_max,1);
+			$this->result["5min"]=round($load_avg,1); // not really the same as load over 5min , but yeah, we can't have that
+			$this->result["15min"]=round($load_min,1); // not really the same as load over 15min , but yeah, we can't have that
 			break;;
 		case "darwin":
 		case "linux":
@@ -218,7 +213,7 @@ Class OStools {
 		}
 		return $result;
 	}
-	
+
 	//-------------------------------------------------------------
 	function foldersize($path,$recursive=false){
 		$diskusage=$this->diskusage($path);
@@ -287,7 +282,7 @@ Class OStools {
 			Single Core ARM:
 			Processor name  : Feroceon 88F6282 rev 1 (v5l) @ 1.6 GHz
 			BogoMIPS        : 1589.24
-			
+
 			Dual Core Intel:
 			vendor_id       : GenuineIntel
 			cpu family      : 6
@@ -298,12 +293,12 @@ Class OStools {
 			*/
 			$cpulines = file_get_contents('/proc/cpuinfo');
 			trace($cpulines);
-			
+
 			$bogomips=$this->grepinfo("bogomips",1000);
 			$numcores=$this->grepinfo("cpu cores",1);
 			$cpughz=$this->grepinfo("cpu MHz",$bogomips/$numcores);
 			$cpughz=round($cpughz/1000,1);
-			
+
 			$cpuinfo["bogomips"]=$bogomips;
 			$cpuinfo["ghz"]=$cpughz;
 			$cpuinfo["cores"]=$numcores;
@@ -383,7 +378,7 @@ Class OStools {
 				$this->parse_profiler($output);
 			} elseif (file_exists('/usr/sbin/AppleSystemProfiler')) {
 				trace("OSSensor::battery : MacOSX method: AppleSystemProfiler");
-				$output=cmdline("AppleSystemProfiler SPPowerDataType");	
+				$output=cmdline("AppleSystemProfiler SPPowerDataType");
 			}
 			$parsed=$this->parse_profiler($output);
 			// static
@@ -424,7 +419,7 @@ Class OStools {
 		$return=cmdline("wmic $command",false,$cachesecs);
 
 		if ($return){
-			//trace($return);
+			trace($return);
 			switch($type){
 			case "int":
 			case "integer":
@@ -434,9 +429,30 @@ Class OStools {
 				$val = trim($return[1]);
 			}
 		}
-		trace("wmic: [wmic $command] => '$val'");
+		trace("OSTools::wmic: [$command] =>  [$val]");
 		return $val;
 	}
+
+	private function winmgmts($command,$cachesecs=30){
+		if($this->result["os"]<>"winnt")	return false;
+		$val=false;
+
+		if($cachesecs>0){
+			$cc=New Cache;
+			$result=$cc->get_arr($command,"winmgmts",$cachesecs);
+			if($result)	return $result;
+		}
+		$wmi = new COM("Winmgmts://");
+		trace("winmgmts: execute [$command]");
+		$return = $wmi->execquery($command);
+		if($cachesecs>0 AND $return){
+			$cc=New Cache;
+			$cc->set_arr($command,"winmgmts",$return);
+		}
+		//var_dump($return);
+		return $return;
+	}
+
 
 	//-------------------------------------------------------------
 	private function grepinfo($param,$default=false,$file="/proc/cpuinfo"){
@@ -512,7 +528,7 @@ Class OStools {
 		}
 		return $parsed;
 	}
-	
+
 	//-------------------------------------------------------------
 	private function find_val($pattern,$subject){
 		$results=preg_grep("/$pattern/", $subject);

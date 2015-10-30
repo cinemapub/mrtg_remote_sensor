@@ -17,7 +17,7 @@ Class Sensor{
 			$nameparts[]="p";
 			}
 		$this->params["server"]=$_SERVER['SERVER_NAME'];
-		$nameparts[]=$this->digest($_SERVER['SERVER_NAME'],2);
+		$nameparts[]=$this->digest($_SERVER['SERVER_NAME'],4);
 		$urlparts[]="key=$key";
 		$param=getparam("param");
 		if($param){
