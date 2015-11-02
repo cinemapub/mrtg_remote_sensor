@@ -200,7 +200,7 @@ Class OStools {
 		case "linux":
 		default:
 			// better use df -m because some path names can be so long they leave no space between name and #blocks
-			$result=cmdline("df -m $path");
+			$result=cmdline("df -m \"$path\"");
 			$line=$result[1];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($disk,$blocks,$used,$available,$percent,$mounted)=explode("\t",$line);
@@ -237,7 +237,7 @@ Class OStools {
 		case "darwin":
 		case "linux":
 		default:
-			$result=cmdline("du -sk $path",false,60*15);
+			$result=cmdline("du -sk \"$path\"",false,60*15);
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($size,$path)=explode("\t",$line);
