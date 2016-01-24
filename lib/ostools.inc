@@ -237,7 +237,7 @@ Class OStools {
 		case "darwin":
 		case "linux":
 		default:
-			$result=cmdline("du -sk \"$path\"",false,60*15);
+			$result=cmdline("du -sk \"$path\"",false,3600);
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
 			list($size,$path)=explode("\t",$line);
