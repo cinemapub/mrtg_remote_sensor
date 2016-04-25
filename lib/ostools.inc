@@ -102,7 +102,7 @@ Class OStools {
 			trace("OSSensor::cpucount : MacOSX method: sysctl");
 			$numCpus=$this->sysctl("hw.ncpu","int");
 			break;;
-		case is_readable('/proc/cpuinfo'):
+		case file_exists("/proc/cpuinfo"):
 			// Linux machines, if PHP permissions are ok for /proc
 			trace("OSSensor::cpucount : Linux method: /proc/cpuinfo");
 			$cpuinfo = file_get_contents('/proc/cpuinfo');
@@ -274,7 +274,8 @@ Class OStools {
 			$cpuinfo["ghz"]=round($this->sysctl("hw.cpufrequency")/1000000000,1);
 			$cpuinfo["bogomips"]=$cpuinfo["cores"] * $cpuinfo["ghz"] * 1000;
 			break;;
-		case is_readable('/proc/cpuinfo'):
+		#case is_readable('/proc/cpuinfo'):
+		case $this->grepinfo("bogomips",0):
 			// Linux machines
 			// works on QNAP - but not on Synology (because of php permissions)
 			trace("OSSensor::cpuinfo : Linux method: /proc/cpuinfo");
@@ -299,15 +300,15 @@ Class OStools {
 			$cpughz=$this->grepinfo("cpu MHz",$bogomips/$numcores);
 			$cpughz=round($cpughz/1000,1);
 
-			$cpuinfo["bogomips"]=$bogomips;
+			$cpuinfo["bogomips"]=round($bogomips/10)*10;
 			$cpuinfo["ghz"]=$cpughz;
 			$cpuinfo["cores"]=$numcores;
 			break;;
 		default:
 			trace("OSSensor::cpuinfo : no source for CPU info");
 			$cpuinfo["cores"]=1;
-			$cpuinfo["ghz"]=1200;
-			$cpuinfo["bogomips"]=1200;
+			$cpuinfo["ghz"]=1;
+			$cpuinfo["bogomips"]=999;
 		}
 		trace($cpuinfo);
 		return $cpuinfo;
