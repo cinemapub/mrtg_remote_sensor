@@ -10,25 +10,27 @@ Class Sensor{
 		$ss=New OStools();
 		$urlparts=Array();
 		$key=getparam("key","cpu");
-		$nameparts[]=$key;
 		$percent=getparam("percent");
 		if($percent){
 			$urlparts[]="percent=1";
 			$nameparts[]="p";
 			}
 		$this->params["server"]=$_SERVER['SERVER_NAME'];
-		$nameparts[]=$this->digest($_SERVER['SERVER_NAME'],4);
+		if(gethostname()<>$this->params["server"]){
+			$this->params["server"]=gethostname();
+		}
+		$nameparts[]=$this->digest($this->params["server"],6);
+		$nameparts[]=$key;
 		$urlparts[]="key=$key";
 		$param=getparam("param");
 		if($param){
 			$urlparts[]="param=$param";
-			$nameparts[]=$this->digest($param);
 			}
 		$options=getparam("options");
 		if($options){
 			$urlparts[]="options=$options";
-			$nameparts[]=$this->digest($options);
 			}
+		$nameparts[]=$this->digest(implode("&",$urlparts));
 		$this->params["mrtg_name"]=implode(".",$nameparts);
 		$url=(isset($_SERVER["https"]) ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
@@ -450,7 +452,7 @@ Class Sensor{
 	// ---------- INTERNAL FUNCTIONS
 
 	function digest($text,$length=4){
-		return substr(sha1($text),0,$length);
+		return substr($text,0,1) . substr(sha1($text),0,$length-1);
 	}
 	function parse_options($options){
 		// parse key1=val1,key2=val2,key3
