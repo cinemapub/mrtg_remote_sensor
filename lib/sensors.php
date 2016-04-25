@@ -109,7 +109,7 @@ Class Sensor{
 				$this->params["description"]="$server: CPU% (5/15 min - $nbcpu CPUs)";
 				$this->params["mrtg_unit"]="%";
 				$this->params["mrtg_options"].=",gauge,nopercent";
-				$this->params["mrtg_maxbytes"]=500;
+				$this->params["mrtg_maxbytes"]=1000;
 			}
 			return $this->params;
 		} else {
