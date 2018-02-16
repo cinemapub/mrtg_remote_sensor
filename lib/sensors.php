@@ -19,8 +19,11 @@ Class Sensor{
 		if(gethostname()<>$this->params["server"]){
 			$this->params["server"]=gethostname();
 		}
-		$nameparts[]=$this->digest($this->params["server"],6);
-		$nameparts[]=$key;
+		$nameparts[]=$this->digest($this->params["server"],6,3);
+		$nameparts[]=str_replace(
+			Array("filecount","foldercount","foldersize","folder"),
+			Array("fil","fld","fsz","fsz"),
+			$key);
 		$urlparts[]="key=$key";
 		$param=getparam("param");
 		if($param){
@@ -30,7 +33,7 @@ Class Sensor{
 		if($options){
 			$urlparts[]="options=$options";
 			}
-		$nameparts[]=$this->digest(implode("&",$urlparts));
+		$nameparts[]=$this->digest(implode("&",$urlparts),4,0);
 		$this->params["mrtg_name"]=implode(".",$nameparts);
 		$url=(isset($_SERVER["https"]) ? "https://" : "http://" ) . $_SERVER["SERVER_NAME"] . $_SERVER["SCRIPT_NAME"];
 		$this->params["url"]=$url . "?" . implode("&",$urlparts);
@@ -52,12 +55,22 @@ Class Sensor{
 		} else {
 			$name=$params["mrtg_name"];
 			$name=str_replace("%","p",$name);
+			echo "#####################################\n";
 			echo "#### MRTG CONFIG $name ####\n";
+			echo "#####################################\n";
 			echo "Target[$name]: `curl -s \"$params[url]\"`\n";
 			echo "Title[$name]: $params[description]\n";
 			echo "PageTop[$name]: <h1>$params[description]</h1>\n";
-			echo "LegendI[$name]: $params[name1]\n";
-			echo "LegendO[$name]: $params[name2]\n";
+			if($params["name1"]){
+				echo "LegendI[$name]: $params[name1]\n";
+				echo "Legend1[$name]: $params[name1]\n";
+				echo "Legend3[$name]: &uarr; $params[name1]\n";
+			}
+			if($params["name2"]){
+				echo "LegendO[$name]: $params[name2]\n";
+				echo "Legend2[$name]: $params[name2]\n";
+				echo "Legend4[$name]: &uarr; $params[name2]\n";
+			}
 			echo "YLegend[$name]: $params[mrtg_unit]\n";
 			echo "PNGTitle[$name]: $name\n";
 			echo "ShortLegend[$name]: $params[mrtg_unit]\n";
@@ -451,8 +464,10 @@ Class Sensor{
 
 	// ---------- INTERNAL FUNCTIONS
 
-	function digest($text,$length=4){
-		return substr($text,0,1) . substr(sha1($text),0,$length-1);
+	function digest($text,$length=4,$keep=1){
+		if($keep == 0) return substr(sha1($text),0,$length);
+		if($keep >= $length)	return substr($text,0,$keep);
+		return substr($text,0,$keep) . substr(sha1($text),0,$length-$keep);
 	}
 	function parse_options($options){
 		// parse key1=val1,key2=val2,key3
