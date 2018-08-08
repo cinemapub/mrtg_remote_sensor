@@ -17,7 +17,7 @@ Class OStools {
 		$this->result["server_name"]=$_SERVER["SERVER_NAME"];
 		$this->result["server_addr"]=$_SERVER["SERVER_ADDR"];
 		$this->result["php_version"]=phpversion();
-		trace(sprintf("OStools::__construct: detected OS [%s - %s]",$this->result["os"],$this->result["os_version"]));
+		trace(sprintf("OStools::__construct: detected OS [%s] (%s)",$this->result["os"],$this->result["os_version"]));
 		}
 
 	//-------------------------------------------------------------
@@ -175,8 +175,8 @@ Class OStools {
 		switch($this->result["os"]){
 		case "winnt":
 			$disk=strtolower(substr($path,0,1).":");
-			trace("OSSensor::proccount : Windows method - wmi for [$disk]");
-			$lines=cmdline("wmic logicaldisk get size,freespace,caption");
+			trace("OSSensor::diskusage : Windows method - wmi for [$disk]");
+			$lines=$this->wmic("logicaldisk get size,freespace,caption","array");
 			$free=0;
 			$total=0;
 			foreach($lines as $line){
@@ -200,6 +200,7 @@ Class OStools {
 		case "linux":
 		default:
 			// better use df -m because some path names can be so long they leave no space between name and #blocks
+			trace("OSSensor::diskusage : Linux method - df [$disk]");
 			$result=cmdline("df -m \"$path\"");
 			$line=$result[1];
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -216,11 +217,21 @@ Class OStools {
 
 	//-------------------------------------------------------------
 	function foldersize($path,$recursive=false){
+		$ca=New Cache;
+		
+		$ccat="foldersize";
+		$cid=$path;
+		if($recursive)	$cid.="[R]";
+		if($ca->get_arr($cid,$ccat)){
+			$result=$ca->get_arr($cid,"foldersize");
+			return $result;
+		}
+		
 		$diskusage=$this->diskusage($path);
 		$total=$diskusage["total"];
 		switch($this->result["os"]){
 		case "winnt":
-			trace("OSSensor::proccount : Windows method - wmi for [$path]");
+			trace("OSSensor::foldersize : Windows method - wmi for [$path]");
 			$obj = new COM ( 'scripting.filesystemobject' );
 			if ( is_object ( $obj ) )
 			{
@@ -237,6 +248,7 @@ Class OStools {
 		case "darwin":
 		case "linux":
 		default:
+			trace("OSSensor::foldersize : Linux method - du for [$path]");
 			$result=cmdline("du -sk \"$path\"",false,3600);
 			$line=$result[0];
 			$line=preg_replace("#\s\s*#","\t",$line);
@@ -248,6 +260,7 @@ Class OStools {
 				);
 		}
 		//print_r($result);
+		$ca->set_arr($cid,$ccat,$result);
 		return $result;
 	}
 
@@ -420,17 +433,24 @@ Class OStools {
 		$return=cmdline("wmic $command",false,$cachesecs);
 
 		if ($return){
-			trace($return);
+			//trace($return);
 			switch($type){
 			case "int":
 			case "integer":
 				$val = intval($return[1]);
-				break;;
+				trace("OSTools::wmic: [$command] =>  [$val]");
+				break;
+				
+			case "array":
+				$val=$return;
+				trace("OSTools::wmic: [$command] =>  [" . implode(";",$val) . "]");
+				break;
+				
 			default:
 				$val = trim($return[1]);
+				trace("OSTools::wmic: [$command] =>  [$val]");
 			}
 		}
-		trace("OSTools::wmic: [$command] =>  [$val]");
 		return $val;
 	}
 

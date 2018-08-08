@@ -5,6 +5,7 @@ include_once("ostools.inc");
 Class Sensor{
 
 	var $params=Array();
+	var $version="1.4";
 	
 	function __construct(){
 		$ss=New OStools();
@@ -19,6 +20,7 @@ Class Sensor{
 		if(gethostname()<>$this->params["server"]){
 			$this->params["server"]=gethostname();
 		}
+		$this->params["version"]=$this->version . " (" . date("c",filemtime(__FILE__)) . ")";
 		$nameparts[]=$this->digest($this->params["server"],6,3);
 		$nameparts[]=str_replace(
 			Array("filecount","foldercount","foldersize","folder"),
@@ -51,7 +53,10 @@ Class Sensor{
 		echo trim($params["uptime"]) . "\n";
 		echo trim($params["server"]) . "\n";
 		if(!$withconfig){
-			echo $params["cfgurl"] . "\n";
+			echo "url_source=" . $params["cfgurl"] . "\n";
+			echo "time_server=" . date("c") . "\n";
+			echo "id_counter=" . $params["mrtg_name"] . "\n";
+			echo "version_api=" . $params["version"] . "\n";
 		} else {
 			$name=$params["mrtg_name"];
 			$name=str_replace("%","p",$name);
@@ -321,9 +326,8 @@ Class Sensor{
 
 	function foldersize($folder,$options){
 	// 1043015852032   /share/MASTER/MASTER/
-		trace("foldersize:  checking [$folder]");
-		$listing=cmdline("ls \"$folder\"");
-		if(!$listing){
+		trace("foldersize: checking [$folder]");
+		if(!file_exists($folder)){
 			trace("foldersize: cannot find [$folder]");
 			return false;
 		}

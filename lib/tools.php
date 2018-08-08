@@ -11,12 +11,12 @@ function trace($info,$level="DEBUG"){
 	}
 	$secs=round(microtime(true) - $time_pagestarted,3);
 	if(is_array($info)){
-		echo "\n<-- $level @ ${secs}s:\n";
+		printf("<-- %s @ %06.3fs:\n",$level,$secs);
 		print_r($info);
 		echo "\n-->\n";
 	} else {
 		$info=preg_replace('#([^-])([<>])([^-])#','\1 \2 \3',$info);
-		printf("\n<-- %s @ %06.3fs: %s -->\n",$level,$secs,$info);
+		printf("<-- %s @ %06.3fs: %s -->\n",$level,$secs,$info);
 	}
 }
 
@@ -58,7 +58,7 @@ Class Cache {
 			trace("Cache::get : cache [$cachefile] too old - $age_secs > $maxsecs");
 			return false;
 		}
-		trace("Cache::get : cache [$cachefile] OK - $age_secs <= $maxsecs");
+		//trace("Cache::get : cache [$cachefile] OK - $age_secs <= $maxsecs");
 		return file_get_contents($cachefile);
 	}
 
@@ -77,7 +77,7 @@ Class Cache {
 			trace("Cache::get_arr : cache [$cachefile] too old - $age_secs > $maxsecs");
 			return false;
 		}
-		trace("Cache::get_arr : cache [$cachefile] OK - $age_secs <= $maxsecs");
+		//trace("Cache::get_arr : cache [$cachefile] OK - $age_secs <= $maxsecs");
 		return unserialize(file_get_contents($cachefile));
 	}
 
@@ -139,11 +139,10 @@ Class Cache {
 		$cachefile=$this->cachedir . "/$cacheid.temp";
 		return $cachefile;
 	}
-
-
 }
 
 function cmdline($text,$folder=false,$cachesecs=30){
+	$ccat="cli";
 	if($folder){
 		$path=realpath($folder);
 		if(!$path){
@@ -156,7 +155,7 @@ function cmdline($text,$folder=false,$cachesecs=30){
 	}
 	if($cachesecs>0){
 		$cc=New Cache;
-		$result=$cc->get_arr($line,"bash",$cachesecs);
+		$result=$cc->get_arr($line,$ccat,$cachesecs);
 		trace("cmdline: [$line] = " . count($result) . " from cache");
 		if($result)	return $result;
 	}
@@ -165,7 +164,7 @@ function cmdline($text,$folder=false,$cachesecs=30){
 	trace("cmdline: [$line] = " . count($stdout) . " lines returned");
 	if($cachesecs>0 AND $stdout){
 		$cc=New Cache;
-		$cc->set_arr($line,"bash",$stdout);
+		$cc->set_arr($line,$ccat,$stdout);
 	}
 	return $stdout;
 }
