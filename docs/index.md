@@ -1,7 +1,5 @@
-[![Build Status](https://github.com/cinemapub/mrtg_remote_sensor/actions/workflows/ci.yml/badge.svg)](https://github.com/cinemapap/mrtg_remote_sensor/actions/workflows/ci.yml)
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-8892BF.svg)](https://www.php.net/)
 [![Composer](https://img.shields.io/badge/composer-compatible-blue)](https://getcomposer.org/)
-[![License](https://img.shields.io/github/license/cinemapub/mrtg_remote_sensor)](https://github.com/cinemapub/mrtg_remote_sensor/blob/main/LICENSE)
 
 # MRTG Remote Sensor
 
