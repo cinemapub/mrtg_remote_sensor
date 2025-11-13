@@ -35,5 +35,6 @@
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true
-    }
+    },
+    "version": "1.0.0"
 }
