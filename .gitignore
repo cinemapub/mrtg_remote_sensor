@@ -220,3 +220,18 @@ pip-log.txt
 #custom stuff
 phpinfo.php
 cache/*.temp
+.idea
+
+#############
+## Modern PHP/Composer
+#############
+
+/vendor/
+/var/cache/*
+!/var/cache/.gitkeep
+/var/logs/*
+!/var/logs/.gitkeep
+composer.lock
+.php-cs-fixer.cache
+.phpunit.result.cache
+.phpunit.cache

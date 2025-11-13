@@ -1,4 +1,7 @@
 <?php
+
+use MrtgSensor\docs\archive\lib\Cache;
+
 include_once("tools.php");
 
 Class OStools {

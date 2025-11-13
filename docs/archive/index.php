@@ -1,4 +1,7 @@
 <?php
+
+use MrtgSensor\docs\archive\lib\Sensor;
+
 include("lib/settings.inc");
 $debug=getparam("debug");
 

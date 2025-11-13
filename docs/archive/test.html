@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>mrtg_remote_sensor TEST PAGE</title>
+</head>
+<body>
+<center>
+<p>
+CPU:
+<a target="results" href="index.php?key=cpu">load</a>
+<a target="results" href="index.php?key=cpu%">%</a>
+
+MEM:
+<a target="results" href="index.php?key=mem">abs</a>
+<a target="results" href="index.php?key=mem%">%</a>
+
+PROC:
+<a target="results" href="index.php?key=proc">tot</a>
+<a target="results" href="index.php?key=proc&param=php">php</a>
+
+DISK:
+<a target="results" href="index.php?key=disk">tot</a>
+
+FOLDER:
+<a target="results" href="index.php?key=foldersize&param=/tmp">tot</a>
+	
+
+</p>
+<iframe name="results" style="width: 50%; height: 99%"></iframe>
+</center>
+</body>
+</html>
