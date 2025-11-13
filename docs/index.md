@@ -1,5 +1,4 @@
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.1-8892BF.svg)](https://www.php.net/)
-[![Composer](https://img.shields.io/badge/composer-compatible-blue)](https://getcomposer.org/)
+![GitHub Release](https://img.shields.io/github/v/release/cinemapub/mrtg_remote_sensor)
 
 # MRTG Remote Sensor
 
