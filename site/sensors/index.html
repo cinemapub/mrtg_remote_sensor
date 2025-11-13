@@ -1,0 +1,1929 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="mrtg_remote_sensor Docs by pforret">
+      
+      
+      
+        <link rel="canonical" href="http://mrtg_remote_sensor.test/sensors/">
+      
+      
+        <link rel="prev" href="../code/PHPFASTCACHE_MIGRATION/">
+      
+      
+        <link rel="next" href="battery/">
+      
+      
+      <link rel="icon" href="../icon/android-chrome-192x192.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>MRTG Remote Sensor - Sensors Documentation - mrtg_remote_sensor Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Nunito";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mrtg-remote-sensor-sensors-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="mrtg_remote_sensor Docs" class="md-header__button md-logo" aria-label="mrtg_remote_sensor Docs" data-md-component="logo">
+      
+  <img src="../icon/android-chrome-192x192.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mrtg_remote_sensor Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MRTG Remote Sensor - Sensors Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  MRTG Remote Sensor
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../code/MODERNIZATION_SUMMARY/" class="md-tabs__link">
+          
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  Sensors
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="mrtg_remote_sensor Docs" class="md-nav__button md-logo" aria-label="mrtg_remote_sensor Docs" data-md-component="logo">
+      
+  <img src="../icon/android-chrome-192x192.png" alt="logo">
+
+    </a>
+    mrtg_remote_sensor Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Code
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Code
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code/MODERNIZATION_SUMMARY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor - PHP 8.3+ Modernization Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code/PHP81_COMPATIBILITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PHP 8.1+ Compatibility Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code/PHPFASTCACHE_MIGRATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migration to phpfastcache
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Sensors
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sensors
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor - Sensors Documentation
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor - Sensors Documentation
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Reference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensor-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensor Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensor Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Process Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      File System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-configuration-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Configuration Generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Debugging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform Support
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sensor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensor Class
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-abstraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS Abstraction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mrtg-output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      MRTG Output Format
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MRTG Output Format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#with-config1" class="md-nav__link">
+    <span class="md-ellipsis">
+      With config=1
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-error-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Error Responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Status Codes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Usage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-appropriate-sensors" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Use Appropriate Sensors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configure-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Configure Caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mrtg-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. MRTG Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="battery/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Battery Charge Sensor (battery)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cpu-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CPU Usage Percentage Sensor (cpu%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cpu/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CPU Load Sensor (cpu)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="disk-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disk Usage Percentage Sensor (disk%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="disk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disk Usage Sensor (disk)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="filecount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Count Sensor (filecount)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foldercount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Folder Count Sensor (foldercount)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foldersize/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Folder Size Sensor (foldersize)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mem-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Memory Usage Percentage Sensor (mem%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mem/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Memory Usage Sensor (mem)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pingtime/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network Ping Time Sensor (pingtime)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="proc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Process Count Sensor (proc)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Reference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensor-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensor Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensor Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Process Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      File System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-configuration-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Configuration Generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Debugging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      With Options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#platform-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Platform Support
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sensor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensor Class
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#os-abstraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS Abstraction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mrtg-output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      MRTG Output Format
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MRTG Output Format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#with-config1" class="md-nav__link">
+    <span class="md-ellipsis">
+      With config=1
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-error-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Error Responses
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Status Codes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching Strategy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Usage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-use-appropriate-sensors" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Use Appropriate Sensors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configure-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Configure Caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mrtg-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. MRTG Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="mrtg-remote-sensor-sensors-documentation">MRTG Remote Sensor - Sensors Documentation<a class="headerlink" href="#mrtg-remote-sensor-sensors-documentation" title="Permanent link">&para;</a></h1>
+<p>Complete documentation for all 17 sensors available in MRTG Remote Sensor.</p>
+<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Sensor</th>
+<th>Description</th>
+<th>Parameters</th>
+<th>Platforms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU Sensors</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="cpu/">cpu</a></td>
+<td>CPU load average</td>
+<td>-</td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="cpu-percent/">cpu%</a></td>
+<td>CPU usage percentage</td>
+<td>-</td>
+<td>All</td>
+</tr>
+<tr>
+<td><strong>Memory Sensors</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="mem/">mem</a></td>
+<td>Memory usage (bytes)</td>
+<td>-</td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="mem-percent/">mem%</a></td>
+<td>Memory usage percentage</td>
+<td>-</td>
+<td>All</td>
+</tr>
+<tr>
+<td><strong>Disk Sensors</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="disk/">disk</a></td>
+<td>Disk usage (bytes)</td>
+<td><code>param=/path</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="disk-percent/">disk%</a></td>
+<td>Disk usage percentage</td>
+<td><code>param=/path</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><strong>Battery Sensors</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="battery/">battery</a></td>
+<td>Battery charge level</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><a href="battery-percent.md">battery%</a></td>
+<td>Battery percentage</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><a href="battery-inverse.md">battery-</a></td>
+<td>Battery used (inverse)</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><a href="battery-voltage.md">batt_volt</a></td>
+<td>Battery voltage</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><a href="battery-amperage.md">batt_amp</a></td>
+<td>Battery amperage</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><a href="battery-cycles.md">batt_cycles</a></td>
+<td>Battery charge cycles</td>
+<td>-</td>
+<td>macOS only</td>
+</tr>
+<tr>
+<td><strong>Process Sensor</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="proc/">proc</a></td>
+<td>Process count</td>
+<td><code>param=filter</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><strong>Folder Sensors</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="foldersize/">foldersize</a></td>
+<td>Folder size in bytes</td>
+<td><code>param=/path</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="filecount/">filecount</a></td>
+<td>File count in folder</td>
+<td><code>param=/path</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><a href="foldercount/">foldercount</a></td>
+<td>Subfolder count</td>
+<td><code>param=/path</code></td>
+<td>All</td>
+</tr>
+<tr>
+<td><strong>Network Sensor</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="pingtime/">pingtime</a></td>
+<td>Connection latency</td>
+<td><code>param=host</code></td>
+<td>All</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sensor-categories">Sensor Categories<a class="headerlink" href="#sensor-categories" title="Permanent link">&para;</a></h2>
+<h3 id="system-monitoring">System Monitoring<a class="headerlink" href="#system-monitoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="cpu/">CPU Sensors</a></strong>: Monitor processor load and utilization</li>
+<li><strong><a href="mem/">Memory Sensors</a></strong>: Track RAM usage and availability</li>
+<li><strong><a href="disk/">Disk Sensors</a></strong>: Monitor disk space usage</li>
+</ul>
+<h3 id="power-management">Power Management<a class="headerlink" href="#power-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="battery/">Battery Sensors</a></strong>: Comprehensive battery monitoring (macOS only)</li>
+<li>Charge level, percentage, voltage, amperage, cycles</li>
+</ul>
+<h3 id="process-management">Process Management<a class="headerlink" href="#process-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="proc/">Process Sensor</a></strong>: Count and filter running processes</li>
+</ul>
+<h3 id="file-system">File System<a class="headerlink" href="#file-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="foldersize/">Folder Sensors</a></strong>: Monitor directories</li>
+<li>Size, file count, subfolder count</li>
+<li>Supports recursive operations and filtering</li>
+</ul>
+<h3 id="network">Network<a class="headerlink" href="#network" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="pingtime/">Network Sensor</a></strong>: Measure connection latency</li>
+</ul>
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># CPU usage</span>
+curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=cpu&quot;</span>
+
+<span class="c1"># Memory percentage</span>
+curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=mem%&quot;</span>
+
+<span class="c1"># Disk usage for root</span>
+curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=disk&amp;param=/&quot;</span>
+</code></pre></div>
+<h3 id="with-configuration-generation">With Configuration Generation<a class="headerlink" href="#with-configuration-generation" title="Permanent link">&para;</a></h3>
+<p>Add <code>config=1</code> to generate MRTG configuration:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=cpu&amp;config=1&quot;</span>
+</code></pre></div>
+<h3 id="with-debugging">With Debugging<a class="headerlink" href="#with-debugging" title="Permanent link">&para;</a></h3>
+<p>Add <code>debug=1</code> to enable debug output:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=mem&amp;debug=1&quot;</span>
+</code></pre></div>
+<h3 id="with-options">With Options<a class="headerlink" href="#with-options" title="Permanent link">&para;</a></h3>
+<p>Some sensors support additional options:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Recursive file count with name filter</span>
+curl<span class="w"> </span><span class="s2">&quot;http://server/index.php?key=filecount&amp;param=/var/log&amp;options=recursive=1,name=*.log&quot;</span>
+</code></pre></div>
+<h2 id="platform-support">Platform Support<a class="headerlink" href="#platform-support" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>CPU</th>
+<th>Memory</th>
+<th>Disk</th>
+<th>Battery</th>
+<th>Process</th>
+<th>Folder</th>
+<th>Network</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Linux</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>macOS</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Windows</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>⚠️*</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>BusyBox</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p>*Windows folder operations require PHP COM extension</p>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="sensor-class">Sensor Class<a class="headerlink" href="#sensor-class" title="Permanent link">&para;</a></h3>
+<p>All sensors are implemented in <code>src/Sensor/Sensor.php</code> as methods that return <code>SensorResult</code> objects.</p>
+<div class="highlight"><pre><span></span><code><span class="x">public function cpuusage(bool $asPercent = false): SensorResult</span>
+<span class="x">public function memusage(bool $asPercent = false): SensorResult</span>
+<span class="x">public function diskusage(?string $path = null, bool $asPercent = false): SensorResult</span>
+<span class="x">public function battery(string $type = &#39;&#39;): SensorResult</span>
+<span class="x">public function proccount(?string $filter = null): SensorResult</span>
+<span class="x">public function foldersize(?string $path = null, array $options = []): SensorResult</span>
+<span class="x">public function filecount(?string $path = null, array $options = []): SensorResult</span>
+<span class="x">public function foldercount(?string $path = null, array $options = []): SensorResult</span>
+<span class="x">public function pingtime(string $address, int $port = 80): SensorResult</span>
+</code></pre></div>
+<h3 id="os-abstraction">OS Abstraction<a class="headerlink" href="#os-abstraction" title="Permanent link">&para;</a></h3>
+<p>Each sensor uses OS-specific implementations via the <code>OSTools</code> interface:</p>
+<ul>
+<li><strong>LinuxTools</strong>: Uses <code>sys_getloadavg()</code>, <code>free</code>, <code>df</code>, <code>du</code>, <code>ps</code></li>
+<li><strong>DarwinTools</strong>: Uses <code>sysctl</code>, <code>vm_stat</code>, <code>system_profiler</code></li>
+<li><strong>WindowsTools</strong>: Uses <code>wmic</code> commands</li>
+<li><strong>BusyBoxTools</strong>: Limited command set for Synology NAS</li>
+</ul>
+<h3 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">&para;</a></h3>
+<p>All sensor data is cached using phpfastcache:
+- Default TTL: 30 seconds for most sensors
+- Longer TTL: 3600 seconds for static data (uptime, folder sizes)
+- Configurable per command execution</p>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Input Sanitization</strong>: All parameters sanitized via <code>Sensor::sanitize()</code></li>
+<li><strong>Path Validation</strong>: Disk and folder operations validate paths</li>
+<li><strong>Read-Only</strong>: No write operations, no sudo/root required</li>
+<li><strong>Command Injection Prevention</strong>: Shell metacharacters removed</li>
+</ul>
+<h2 id="mrtg-output-format">MRTG Output Format<a class="headerlink" href="#mrtg-output-format" title="Permanent link">&para;</a></h2>
+<p>All sensors return data in standard MRTG 4-line format:</p>
+<div class="highlight"><pre><span></span><code>&lt;value1&gt;
+&lt;value2&gt;
+&lt;uptime&gt;
+&lt;server&gt;
+</code></pre></div>
+<h3 id="with-config1">With config=1<a class="headerlink" href="#with-config1" title="Permanent link">&para;</a></h3>
+<p>When <code>config=1</code> is specified, sensors return complete MRTG configuration:</p>
+<div class="highlight"><pre><span></span><code>Target[id]: `curl -s &quot;http://server/index.php?key=cpu&quot;`
+Title[id]: server: CPU Usage
+PageTop[id]: &lt;h1&gt;server: CPU Usage&lt;/h1&gt;
+ShortLegend[id]: load
+Options[id]: growright,nobanner,gauge
+MaxBytes[id]: 500
+kMG[id]: ,k,M,G,T,P
+</code></pre></div>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h3 id="common-error-responses">Common Error Responses<a class="headerlink" href="#common-error-responses" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code># Unknown sensor type
+Error: Unknown sensor type: invalid
+
+# Missing required parameter
+Error: Disk sensor requires &#39;param&#39; parameter
+
+# Invalid path
+Error: Path does not exist: /invalid/path
+
+# Platform not supported
+Error: Battery sensors only available on macOS
+</code></pre></div>
+<h3 id="http-status-codes">HTTP Status Codes<a class="headerlink" href="#http-status-codes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>200 OK</strong>: Successful sensor reading</li>
+<li><strong>400 Bad Request</strong>: Invalid parameters</li>
+<li><strong>500 Internal Server Error</strong>: Sensor execution failed</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>Each sensor can be tested individually:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test CPU sensor</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost/index.php?key=cpu&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-4
+
+<span class="c1"># Test with debug output</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost/index.php?key=mem&amp;debug=1&quot;</span>
+
+<span class="c1"># Test configuration generation</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost/index.php?key=disk&amp;param=/&amp;config=1&quot;</span>
+</code></pre></div>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="caching-strategy">Caching Strategy<a class="headerlink" href="#caching-strategy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Fast Sensors</strong> (CPU, Memory): 30-second cache</li>
+<li><strong>Medium Sensors</strong> (Disk, Process): 30-second cache</li>
+<li><strong>Slow Sensors</strong> (Folder operations): 3600-second cache</li>
+<li><strong>Network Sensor</strong>: 30-second cache</li>
+</ul>
+<h3 id="resource-usage">Resource Usage<a class="headerlink" href="#resource-usage" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CPU</strong>: Minimal impact, uses system load averages</li>
+<li><strong>Memory</strong>: Instant, reads from <code>/proc</code> or system calls</li>
+<li><strong>Disk</strong>: Fast, uses <code>df</code> command</li>
+<li><strong>Folder</strong>: Can be slow for large directories (use caching!)</li>
+<li><strong>Process</strong>: Fast, simple count</li>
+<li><strong>Network</strong>: Depends on target latency</li>
+</ul>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-appropriate-sensors">1. Use Appropriate Sensors<a class="headerlink" href="#1-use-appropriate-sensors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <code>cpu%</code> for percentage-based monitoring</li>
+<li>Use <code>disk%</code> when absolute bytes aren't needed</li>
+<li>Use <code>proc</code> with filters to monitor specific services</li>
+</ul>
+<h3 id="2-configure-caching">2. Configure Caching<a class="headerlink" href="#2-configure-caching" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Don't disable caching for expensive operations</li>
+<li>Adjust TTL based on update frequency needs</li>
+<li>Use longer TTL for folder operations</li>
+</ul>
+<h3 id="3-mrtg-configuration">3. MRTG Configuration<a class="headerlink" href="#3-mrtg-configuration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use <code>growright</code> option for forward-growing graphs</li>
+<li>Use <code>gauge</code> for current values (not counters)</li>
+<li>Set appropriate <code>MaxBytes</code> for scaling</li>
+</ul>
+<h3 id="4-security">4. Security<a class="headerlink" href="#4-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Restrict access via web server config</li>
+<li>Use HTTPS for remote monitoring</li>
+<li>Validate all paths and parameters</li>
+<li>Don't expose debug mode in production</li>
+</ul>
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>To add a new sensor:</p>
+<ol>
+<li>Add enum case to <code>src/Enum/SensorType.php</code></li>
+<li>Add abstract method to <code>src/OS/OSTools.php</code></li>
+<li>Implement in all OS tool classes</li>
+<li>Add sensor method to <code>src/Sensor/Sensor.php</code></li>
+<li>Add route in <code>public/index.php</code></li>
+<li>Write tests in <code>tests/Integration/</code></li>
+<li>Document in <code>docs/sensors/&lt;sensor&gt;.md</code></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025 mrtg_remote_sensor Docs &bull; pforret
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy", "header.autohide", "navigation.instant", "navigation.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

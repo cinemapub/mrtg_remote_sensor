@@ -266,9 +266,3 @@ To add a new sensor:
 6. Write tests in `tests/Integration/`
 7. Document in `docs/sensors/<sensor>.md`
 
-## See Also
-
-- [Main README](../../README.md)
-- [CLAUDE.md](../../CLAUDE.md) - Developer guide
-- [PHP 8.1+ Compatibility](../../PHP81_COMPATIBILITY.md)
-- [phpfastcache Migration](../../PHPFASTCACHE_MIGRATION.md)

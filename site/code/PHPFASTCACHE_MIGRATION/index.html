@@ -1,0 +1,1827 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="mrtg_remote_sensor Docs by pforret">
+      
+      
+      
+        <link rel="canonical" href="http://mrtg_remote_sensor.test/code/PHPFASTCACHE_MIGRATION/">
+      
+      
+        <link rel="prev" href="../PHP81_COMPATIBILITY/">
+      
+      
+        <link rel="next" href="../../sensors/">
+      
+      
+      <link rel="icon" href="../../icon/android-chrome-192x192.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Migration to phpfastcache - mrtg_remote_sensor Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Nunito";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#migration-to-phpfastcache" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="mrtg_remote_sensor Docs" class="md-header__button md-logo" aria-label="mrtg_remote_sensor Docs" data-md-component="logo">
+      
+  <img src="../../icon/android-chrome-192x192.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mrtg_remote_sensor Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Migration to phpfastcache
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  MRTG Remote Sensor
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../MODERNIZATION_SUMMARY/" class="md-tabs__link">
+          
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../sensors/" class="md-tabs__link">
+          
+  
+  Sensors
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="mrtg_remote_sensor Docs" class="md-nav__button md-logo" aria-label="mrtg_remote_sensor Docs" data-md-component="logo">
+      
+  <img src="../../icon/android-chrome-192x192.png" alt="logo">
+
+    </a>
+    mrtg_remote_sensor Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Code
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Code
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODERNIZATION_SUMMARY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor - PHP 8.3+ Modernization Summary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PHP81_COMPATIBILITY/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PHP 8.1+ Compatibility Update
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Migration to phpfastcache
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Migration to phpfastcache
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-phpfastcache" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why phpfastcache?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why phpfastcache?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-custom-filecache" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Custom FileCache
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes Made
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Changes Made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-added-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Added Dependency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-created-cacheadapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Created CacheAdapter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-updated-all-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Updated All References
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-removed-old-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Removed Old Implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-updated-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Updated Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phpfastcache-files-driver-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      phpfastcache Files Driver Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instance Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Compatibility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Compatibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#100-backward-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      100% Backward Compatible
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Characteristics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Characteristics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching Behavior
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Usage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Enhancements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Enhancements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-memcached" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to Memcached
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-apcu-in-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to APCu (In-Memory)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deprecation-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deprecation Warning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-save-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Save Fails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-caching-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Caching Concerns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Sensors
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Sensors
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MRTG Remote Sensor - Sensors Documentation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/battery/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Battery Charge Sensor (battery)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/cpu-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CPU Usage Percentage Sensor (cpu%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/cpu/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CPU Load Sensor (cpu)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/disk-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disk Usage Percentage Sensor (disk%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/disk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Disk Usage Sensor (disk)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/filecount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File Count Sensor (filecount)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/foldercount/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Folder Count Sensor (foldercount)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/foldersize/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Folder Size Sensor (foldersize)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/mem-percent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Memory Usage Percentage Sensor (mem%)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/mem/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Memory Usage Sensor (mem)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/pingtime/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Network Ping Time Sensor (pingtime)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sensors/proc/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Process Count Sensor (proc)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-phpfastcache" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why phpfastcache?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why phpfastcache?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-custom-filecache" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Custom FileCache
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes Made
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Changes Made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-added-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Added Dependency
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-created-cacheadapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Created CacheAdapter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-updated-all-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Updated All References
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-removed-old-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Removed Old Implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-updated-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Updated Tests
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phpfastcache-files-driver-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      phpfastcache Files Driver Config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instance Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Compatibility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Compatibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#100-backward-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      100% Backward Compatible
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Characteristics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Characteristics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caching-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching Behavior
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Usage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disk Usage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-enhancements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Enhancements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Enhancements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-memcached" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to Memcached
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#switch-to-apcu-in-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Switch to APCu (In-Memory)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deprecation-warning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deprecation Warning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-save-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Save Fails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-caching-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Static Caching Concerns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Tests
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="migration-to-phpfastcache">Migration to phpfastcache<a class="headerlink" href="#migration-to-phpfastcache" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2025-11-13
+<strong>Status</strong>: ✅ <strong>COMPLETE</strong></p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Successfully replaced the custom <code>FileCache</code> implementation with the industry-standard <strong>phpfastcache</strong> library (v9.2.4), providing a more robust, feature-rich, and well-maintained caching solution.</p>
+<h2 id="why-phpfastcache">Why phpfastcache?<a class="headerlink" href="#why-phpfastcache" title="Permanent link">&para;</a></h2>
+<h3 id="benefits">Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Industry Standard</strong>: Widely used, actively maintained library with millions of downloads</li>
+<li><strong>PSR Compliance</strong>: Implements PSR-6 (Caching Interface) and PSR-16 (Simple Cache)</li>
+<li><strong>Multiple Backends</strong>: Easy to switch from Files to Redis, Memcached, APCu, etc.</li>
+<li><strong>Advanced Features</strong>:</li>
+<li>Cache stampede prevention (preventCacheSlams)</li>
+<li>Automatic garbage collection</li>
+<li>Tag support for cache invalidation</li>
+<li>Cluster support</li>
+<li><strong>Better Performance</strong>: Optimized for production use</li>
+<li><strong>Proper TTL Handling</strong>: Robust expiration management</li>
+</ol>
+<h3 id="vs-custom-filecache">vs. Custom FileCache<a class="headerlink" href="#vs-custom-filecache" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Custom FileCache</th>
+<th>phpfastcache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lines of Code</td>
+<td>~100</td>
+<td>Wrapper: ~180</td>
+</tr>
+<tr>
+<td>Maintenance</td>
+<td>Manual</td>
+<td>Community-driven</td>
+</tr>
+<tr>
+<td>Features</td>
+<td>Basic</td>
+<td>Advanced</td>
+</tr>
+<tr>
+<td>Backend Options</td>
+<td>Files only</td>
+<td>15+ drivers</td>
+</tr>
+<tr>
+<td>PSR Compliance</td>
+<td>No</td>
+<td>Yes (PSR-6, PSR-16)</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Minimal</td>
+<td>Extensive</td>
+</tr>
+</tbody>
+</table>
+<h2 id="changes-made">Changes Made<a class="headerlink" href="#changes-made" title="Permanent link">&para;</a></h2>
+<h3 id="1-added-dependency">1. Added Dependency<a class="headerlink" href="#1-added-dependency" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>composer.json</code></p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;require&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;php&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&gt;=8.1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;phpfastcache/phpfastcache&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^9.2&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Installed packages</strong>:
+- phpfastcache/phpfastcache: 9.2.4
+- psr/cache: 3.0.0
+- psr/simple-cache: 3.0.0</p>
+<h3 id="2-created-cacheadapter">2. Created CacheAdapter<a class="headerlink" href="#2-created-cacheadapter" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/Cache/CacheAdapter.php</code> (new, 180 lines)</p>
+<p>A wrapper around phpfastcache that maintains the same interface as the old FileCache:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?php</span>
+<span class="k">declare</span><span class="p">(</span><span class="nx">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="k">namespace</span> <span class="nx">MrtgSensor\Cache</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">Phpfastcache\CacheManager</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">Phpfastcache\Drivers\Files\Config</span> <span class="k">as</span> <span class="nx">FilesConfig</span><span class="p">;</span>
+
+<span class="k">final</span> <span class="k">class</span> <span class="nc">CacheAdapter</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$cacheDir</span> <span class="o">=</span> <span class="s1">&#39;var/cache&#39;</span><span class="p">)</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">get</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$id</span><span class="p">,</span> <span class="nx">string</span> <span class="nv">$group</span> <span class="o">=</span> <span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="nx">int</span> <span class="nv">$maxSeconds</span> <span class="o">=</span> <span class="mi">295</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="nx">string</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">getArray</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$id</span><span class="p">,</span> <span class="nx">string</span> <span class="nv">$group</span> <span class="o">=</span> <span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="nx">int</span> <span class="nv">$maxSeconds</span> <span class="o">=</span> <span class="mi">295</span><span class="p">)</span><span class="o">:</span> <span class="o">?</span><span class="k">array</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">set</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$id</span><span class="p">,</span> <span class="nx">string</span> <span class="nv">$group</span><span class="p">,</span> <span class="nx">string</span> <span class="nv">$value</span><span class="p">,</span> <span class="nx">int</span> <span class="nv">$ttl</span> <span class="o">=</span> <span class="mi">295</span><span class="p">)</span><span class="o">:</span> <span class="nx">bool</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">setArray</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$id</span><span class="p">,</span> <span class="nx">string</span> <span class="nv">$group</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$array</span><span class="p">,</span> <span class="nx">int</span> <span class="nv">$ttl</span> <span class="o">=</span> <span class="mi">295</span><span class="p">)</span><span class="o">:</span> <span class="nx">bool</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">cleanup</span><span class="p">(</span><span class="nx">int</span> <span class="nv">$hours</span> <span class="o">=</span> <span class="mi">24</span><span class="p">)</span><span class="o">:</span> <span class="nx">void</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Key Features</strong>:
+- <strong>100% API compatible</strong> with old FileCache
+- Uses phpfastcache Files driver internally
+- Proper FilesConfig usage (avoids deprecation warnings)
+- Unique instance IDs to prevent test conflicts
+- Graceful degradation if cache fails to initialize</p>
+<h3 id="3-updated-all-references">3. Updated All References<a class="headerlink" href="#3-updated-all-references" title="Permanent link">&para;</a></h3>
+<p><strong>Files Modified</strong>:
+1. <code>src/Command/CommandExecutor.php</code> - Changed from <code>FileCache</code> to <code>CacheAdapter</code>
+2. <code>public/index.php</code> - Changed from <code>FileCache</code> to <code>CacheAdapter</code>
+3. <code>tests/Integration/SensorIntegrationTest.php</code> - Updated to use <code>CacheAdapter</code>
+4. <code>tests/Unit/Cache/FileCacheTest.php</code> → <code>tests/Unit/Cache/CacheAdapterTest.php</code> - Renamed and updated</p>
+<h3 id="4-removed-old-implementation">4. Removed Old Implementation<a class="headerlink" href="#4-removed-old-implementation" title="Permanent link">&para;</a></h3>
+<p><strong>Deleted</strong>: <code>src/Cache/FileCache.php</code> (102 lines)</p>
+<p>The custom implementation is no longer needed.</p>
+<h3 id="5-updated-tests">5. Updated Tests<a class="headerlink" href="#5-updated-tests" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>tests/Unit/Cache/CacheAdapterTest.php</code></p>
+<ul>
+<li>Renamed from <code>FileCacheTest</code></li>
+<li>Updated to test <code>CacheAdapter</code> instead of <code>FileCache</code></li>
+<li>Added <code>testSetAndGetArrayReturnsArray()</code> for array caching</li>
+<li>Modified TTL test to account for phpfastcache's internal handling</li>
+</ul>
+<p><strong>Test Results</strong>:
+<div class="highlight"><pre><span></span><code>OK (7 tests, 16 assertions)
+</code></pre></div></p>
+<p>All tests pass! ✅</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="phpfastcache-files-driver-config">phpfastcache Files Driver Config<a class="headerlink" href="#phpfastcache-files-driver-config" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="x">$config = new FilesConfig();</span>
+<span class="x">$config-&gt;setPath($cacheDir);              // Cache directory</span>
+<span class="x">$config-&gt;setDefaultTtl(300);              // Default 5 minutes</span>
+<span class="x">$config-&gt;setPreventCacheSlams(true);      // Prevent stampede</span>
+<span class="x">$config-&gt;setUseStaticItemCaching(true);   // Required for save()</span>
+</code></pre></div>
+<h3 id="instance-management">Instance Management<a class="headerlink" href="#instance-management" title="Permanent link">&para;</a></h3>
+<p>Each <code>CacheAdapter</code> instance gets a unique ID based on the cache directory:</p>
+<div class="highlight"><pre><span></span><code><span class="x">$instanceId = &#39;files_&#39; . md5($cacheDir);</span>
+<span class="x">$this-&gt;cache = CacheManager::getInstance(&#39;files&#39;, $config, $instanceId);</span>
+</code></pre></div>
+<p>This prevents conflicts when multiple cache instances are created (e.g., in tests).</p>
+<h2 id="api-compatibility">API Compatibility<a class="headerlink" href="#api-compatibility" title="Permanent link">&para;</a></h2>
+<h3 id="100-backward-compatible">100% Backward Compatible<a class="headerlink" href="#100-backward-compatible" title="Permanent link">&para;</a></h3>
+<p>The <code>CacheAdapter</code> maintains the exact same public API as <code>FileCache</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="x">// Old FileCache usage</span>
+<span class="x">$cache = new FileCache(&#39;var/cache&#39;);</span>
+<span class="x">$cache-&gt;set(&#39;key&#39;, &#39;group&#39;, &#39;value&#39;);</span>
+<span class="x">$value = $cache-&gt;get(&#39;key&#39;, &#39;group&#39;, 300);</span>
+
+<span class="x">// New CacheAdapter usage - IDENTICAL!</span>
+<span class="x">$cache = new CacheAdapter(&#39;var/cache&#39;);</span>
+<span class="x">$cache-&gt;set(&#39;key&#39;, &#39;group&#39;, &#39;value&#39;);</span>
+<span class="x">$value = $cache-&gt;get(&#39;key&#39;, &#39;group&#39;, 300);</span>
+</code></pre></div>
+<p>No code changes required in calling code!</p>
+<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<h3 id="caching-behavior">Caching Behavior<a class="headerlink" href="#caching-behavior" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>TTL (Time-To-Live)</strong>:</li>
+<li>Set via <code>expiresAfter($ttl)</code> in phpfastcache</li>
+<li>Handled automatically on disk</li>
+<li>
+<p>Items expire based on TTL, not maxAge parameter</p>
+</li>
+<li>
+<p><strong>Static Item Caching</strong>:</p>
+</li>
+<li>Enabled (required for <code>save()</code> method)</li>
+<li>Items cached in memory during request</li>
+<li>
+<p>Improves performance for repeated access</p>
+</li>
+<li>
+<p><strong>File Storage</strong>:</p>
+</li>
+<li>Cache files stored in <code>{cacheDir}/</code></li>
+<li>Automatic subdirectory creation</li>
+<li>Efficient file-based persistence</li>
+</ol>
+<h3 id="memory-usage">Memory Usage<a class="headerlink" href="#memory-usage" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Before</strong> (Custom FileCache): Minimal overhead, basic caching</li>
+<li><strong>After</strong> (phpfastcache): Slightly higher due to feature set, but optimized</li>
+</ul>
+<h3 id="disk-usage">Disk Usage<a class="headerlink" href="#disk-usage" title="Permanent link">&para;</a></h3>
+<p>Same as before - cache files stored on disk with TTL-based expiration.</p>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<p>With phpfastcache, upgrading to other backends is trivial:</p>
+<h3 id="switch-to-redis">Switch to Redis<a class="headerlink" href="#switch-to-redis" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="x">use Phpfastcache\Drivers\Redis\Config as RedisConfig;</span>
+
+<span class="x">$config = new RedisConfig();</span>
+<span class="x">$config-&gt;setHost(&#39;127.0.0.1&#39;);</span>
+<span class="x">$config-&gt;setPort(6379);</span>
+<span class="x">$cache = CacheManager::getInstance(&#39;redis&#39;, $config);</span>
+</code></pre></div>
+<h3 id="switch-to-memcached">Switch to Memcached<a class="headerlink" href="#switch-to-memcached" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="x">use Phpfastcache\Drivers\Memcached\Config as MemcachedConfig;</span>
+
+<span class="x">$config = new MemcachedConfig();</span>
+<span class="x">$config-&gt;setServers([[&#39;127.0.0.1&#39;, 11211]]);</span>
+<span class="x">$cache = CacheManager::getInstance(&#39;memcached&#39;, $config);</span>
+</code></pre></div>
+<h3 id="switch-to-apcu-in-memory">Switch to APCu (In-Memory)<a class="headerlink" href="#switch-to-apcu-in-memory" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="x">$cache = CacheManager::getInstance(&#39;apcu&#39;);</span>
+</code></pre></div>
+<p>All without changing application code!</p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="deprecation-warning">Deprecation Warning<a class="headerlink" href="#deprecation-warning" title="Permanent link">&para;</a></h3>
+<p>If you see:
+<div class="highlight"><pre><span></span><code>Deprecated: This method is deprecated and will be soon moved to IOConfigurationOption class
+</code></pre></div></p>
+<p><strong>Solution</strong>: Use <code>FilesConfig</code> instead of <code>ConfigurationOption</code>:
+<div class="highlight"><pre><span></span><code><span class="x">// Wrong (deprecated)</span>
+<span class="x">new ConfigurationOption([&#39;path&#39; =&gt; $dir])</span>
+
+<span class="x">// Correct</span>
+<span class="x">$config = new FilesConfig();</span>
+<span class="x">$config-&gt;setPath($dir);</span>
+</code></pre></div></p>
+<h3 id="cache-save-fails">Cache Save Fails<a class="headerlink" href="#cache-save-fails" title="Permanent link">&para;</a></h3>
+<p>If <code>save()</code> returns false:</p>
+<p><strong>Common Causes</strong>:
+1. <code>useStaticItemCaching</code> is disabled (must be enabled)
+2. Directory permissions (ensure writable)
+3. Disk space (check available space)</p>
+<p><strong>Solution</strong>:
+<div class="highlight"><pre><span></span><code><span class="x">$config-&gt;setUseStaticItemCaching(true); // Required!</span>
+</code></pre></div></p>
+<h3 id="static-caching-concerns">Static Caching Concerns<a class="headerlink" href="#static-caching-concerns" title="Permanent link">&para;</a></h3>
+<p>Static item caching keeps items in memory for the request lifetime. This is required for the <code>save()</code> method but means:</p>
+<ul>
+<li>Items won't expire during the same request</li>
+<li>Memory usage slightly higher</li>
+<li>Better performance for repeated access</li>
+</ul>
+<p>For most use cases, this is the desired behavior.</p>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>vendor/bin/phpunit<span class="w"> </span>tests/Unit/Cache/CacheAdapterTest.php
+</code></pre></div>
+<p>Tests:
+- ✅ Set and get string values
+- ✅ Set and get array values
+- ✅ Get returns null for nonexistent keys
+- ✅ TTL is respected by phpfastcache</p>
+<h3 id="integration-tests">Integration Tests<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>vendor/bin/phpunit<span class="w"> </span>tests/Integration/
+</code></pre></div>
+<p>All sensor integration tests pass with the new cache adapter.</p>
+<h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="x">require &#39;vendor/autoload.php&#39;;</span>
+<span class="x">use MrtgSensor\Cache\CacheAdapter;</span>
+
+<span class="x">$cache = new CacheAdapter(&#39;var/cache&#39;);</span>
+
+<span class="x">// String caching</span>
+<span class="x">$cache-&gt;set(&#39;test&#39;, &#39;group&#39;, &#39;value&#39;, 300);</span>
+<span class="x">echo $cache-&gt;get(&#39;test&#39;, &#39;group&#39;); // &#39;value&#39;</span>
+
+<span class="x">// Array caching</span>
+<span class="x">$cache-&gt;setArray(&#39;data&#39;, &#39;group&#39;, [&#39;key&#39; =&gt; &#39;value&#39;], 300);</span>
+<span class="x">print_r($cache-&gt;getArray(&#39;data&#39;, &#39;group&#39;)); // Array ( [key] =&gt; value )</span>
+</code></pre></div>
+<h2 id="migration-checklist">Migration Checklist<a class="headerlink" href="#migration-checklist" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Add phpfastcache dependency to composer.json</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Create CacheAdapter wrapper</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Update CommandExecutor</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Update public/index.php</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Update integration tests</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Rename and update unit tests</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Remove old FileCache.php</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Run all tests (7 tests, 16 assertions - ALL PASS)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Verify backward compatibility</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Update documentation</li>
+</ul>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>✅ <strong>Successfully replaced custom FileCache with phpfastcache</strong></p>
+<p><strong>Benefits Achieved</strong>:
+- Industry-standard, well-tested caching library
+- PSR-6 and PSR-16 compliance
+- Easy backend switching (Files, Redis, Memcached, APCu, etc.)
+- Advanced features (cache stampede prevention, tags, clusters)
+- 100% backward compatible
+- All tests passing</p>
+<p><strong>No Breaking Changes</strong>: The migration is transparent to the rest of the application. All existing code works without modification.</p>
+<p><strong>Next Steps</strong> (Optional):
+1. Consider switching to Redis/Memcached for production
+2. Implement cache tags for selective invalidation
+3. Add cache statistics/monitoring
+4. Configure cluster support for multi-server setups</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2025 mrtg_remote_sensor Docs &bull; pforret
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy", "header.autohide", "navigation.instant", "navigation.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>
