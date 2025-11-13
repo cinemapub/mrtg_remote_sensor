@@ -1,6 +1,9 @@
 ![GitHub Release](https://img.shields.io/github/v/release/cinemapub/mrtg_remote_sensor)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/cinemapub/mrtg_remote_sensor)
 
 # MRTG Remote Sensor
+
+![](unsplash.sensor.jpg)
 
 **Modern PHP 8.1+ System Monitoring for MRTG**
 

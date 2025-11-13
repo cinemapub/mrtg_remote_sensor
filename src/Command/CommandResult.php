@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MrtgSensor\Command;
 
-final readonly class CommandResult
+final class CommandResult
 {
     public function __construct(
         public array $stdout,
