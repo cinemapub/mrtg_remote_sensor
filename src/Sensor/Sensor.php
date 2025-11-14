@@ -11,7 +11,9 @@ final class Sensor
     public const VERSION = '2.0';
 
     private readonly string $serverName;
+
     private readonly string $uptime;
+
     private readonly string $baseUrl;
 
     public function __construct(
@@ -22,7 +24,7 @@ final class Sensor
     ) {
         $this->serverName = $serverName;
         $this->uptime = $this->osTools->uptime();
-        $this->baseUrl = ($isHttps ? 'https://' : 'http://') . $serverName . $scriptName;
+        $this->baseUrl = ($isHttps ? 'https://' : 'http://').$serverName.$scriptName;
     }
 
     public function cpuusage(bool $asPercent = false): SensorResult
@@ -37,7 +39,7 @@ final class Sensor
             ? "{$cpuInfo['ghz']} GHz (bogomips {$cpuInfo['bogomips']})"
             : "{$cores} cores x {$cpuInfo['ghz']} GHz (bogomips {$cpuInfo['bogomips']})";
 
-        if (!$asPercent) {
+        if (! $asPercent) {
             return new SensorResult(
                 value1: $load5 * 100,
                 value2: $load15 * 100,
@@ -81,7 +83,7 @@ final class Sensor
         $mem = $this->osTools->memusage();
         $server = strtolower($this->serverName);
 
-        if (!$asPercent) {
+        if (! $asPercent) {
             return new SensorResult(
                 value1: $mem['used'],
                 value2: $mem['total'],
@@ -126,7 +128,7 @@ final class Sensor
         $disk = $this->osTools->diskusage($path);
         $server = strtolower($this->serverName);
 
-        if (!$asPercent) {
+        if (! $asPercent) {
             return new SensorResult(
                 value1: $disk['used'],
                 value2: $disk['total'],
@@ -147,6 +149,7 @@ final class Sensor
         }
 
         $percent = $disk['total'] > 0 ? round($disk['used'] * 100 / $disk['total'], 2) : 0;
+
         return new SensorResult(
             value1: $percent,
             value2: 100,
@@ -195,7 +198,7 @@ final class Sensor
         $params = $this->parseOptions($options);
         $findopt = '';
 
-        if (!($params['recursive'] ?? false)) {
+        if (! ($params['recursive'] ?? false)) {
             $findopt .= '-maxdepth 1 ';
         }
         if (isset($params['mtime'])) {
@@ -207,7 +210,7 @@ final class Sensor
         $findopt .= '-type f';
 
         $result = $this->osTools->executor->execute("find \"{$folder}\" {$findopt} | wc -l");
-        $nb = (int)trim($result->getFirstLine());
+        $nb = (int) trim($result->getFirstLine());
 
         $desc = "File count [{$folder}]";
         if ($options) {
@@ -238,7 +241,7 @@ final class Sensor
         $params = $this->parseOptions($options);
         $findopt = '';
 
-        if (!($params['recursive'] ?? false)) {
+        if (! ($params['recursive'] ?? false)) {
             $findopt .= '-maxdepth 1 ';
         }
         if (isset($params['mtime'])) {
@@ -250,7 +253,7 @@ final class Sensor
         $findopt .= '-type d';
 
         $result = $this->osTools->executor->execute("find \"{$folder}\" {$findopt} | wc -l");
-        $nb = (int)trim($result->getFirstLine());
+        $nb = (int) trim($result->getFirstLine());
 
         $desc = "Folder count [{$folder}]";
         if ($options) {
@@ -317,8 +320,8 @@ final class Sensor
         $desc = $port == 80 ? "ping time to {$address}" : "ping time to {$address}:{$port}";
 
         return new SensorResult(
-            value1: (int)$min,
-            value2: (int)$max,
+            value1: (int) $min,
+            value2: (int) $max,
             uptime: $this->uptime,
             server: $this->serverName,
             name1: "MIN {$desc}",
@@ -338,7 +341,7 @@ final class Sensor
     public function battery(string $type = ''): SensorResult
     {
         $result = $this->osTools->battery();
-        if (!$result) {
+        if (! $result) {
             throw new \RuntimeException('Battery information not available on this system');
         }
 
@@ -456,6 +459,7 @@ final class Sensor
         if ($param) {
             $url .= "&param={$param}";
         }
+
         return $withConfig ? "{$url}&config=1" : $url;
     }
 
@@ -467,12 +471,13 @@ final class Sensor
             ['fil', 'fld', 'fsz', 'fsz'],
             $key
         );
+
         return "{$digest}.{$keyShort}";
     }
 
     private function parseOptions(string $options): array
     {
-        if (!$options) {
+        if (! $options) {
             return [];
         }
 
@@ -503,7 +508,7 @@ final class Sensor
         $t1 = microtime(true);
         $fp = @fsockopen($ip, $port, $errno, $errstr, $timeout);
 
-        if (!$fp) {
+        if (! $fp) {
             return 6666.0;
         }
 

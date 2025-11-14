@@ -10,15 +10,15 @@ final class MrtgFormatter
     {
         $output = sprintf(
             "%s\n%s\n%s\n%s\n",
-            trim((string)$result->value1),
-            trim((string)$result->value2),
+            trim((string) $result->value1),
+            trim((string) $result->value2),
             trim($result->uptime),
             trim($result->server)
         );
 
-        if (!$withConfig) {
+        if (! $withConfig) {
             $output .= "url_source={$result->cfgUrl}\n";
-            $output .= 'time_server=' . date('c') . "\n";
+            $output .= 'time_server='.date('c')."\n";
             $output .= "id_counter={$result->mrtgName}\n";
             $output .= "version_api={$result->version}\n";
         } else {

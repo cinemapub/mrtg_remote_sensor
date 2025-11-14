@@ -10,6 +10,7 @@ final class BusyBoxTools extends OSTools
     public function cpuload(): array
     {
         $load = sys_getloadavg();
+
         return [
             '1min' => round($load[0], 3),
             '5min' => round($load[1], 3),
@@ -32,9 +33,9 @@ final class BusyBoxTools extends OSTools
         $parts = explode("\t", $line);
 
         return [
-            'free' => (int)($parts[3] ?? 0),
-            'used' => (int)($parts[2] ?? 0),
-            'total' => (int)($parts[1] ?? 0),
+            'free' => (int) ($parts[3] ?? 0),
+            'used' => (int) ($parts[2] ?? 0),
+            'total' => (int) ($parts[1] ?? 0),
         ];
     }
 
@@ -50,8 +51,8 @@ final class BusyBoxTools extends OSTools
         $line = preg_replace('/\s\s*/', "\t", $stdout[1]);
         $parts = explode("\t", $line);
 
-        $blocks = (int)($parts[1] ?? 0);
-        $used = (int)($parts[2] ?? 0);
+        $blocks = (int) ($parts[1] ?? 0);
+        $used = (int) ($parts[2] ?? 0);
 
         return [
             'total' => $blocks * 1024,
@@ -67,7 +68,7 @@ final class BusyBoxTools extends OSTools
         $result = $this->executor->execute("du -sk \"{$path}\"", null, 3600);
         $line = preg_replace('/\s\s*/', "\t", $result->getFirstLine());
         $parts = explode("\t", $line);
-        $size = (int)($parts[0] ?? 0);
+        $size = (int) ($parts[0] ?? 0);
 
         return [
             'total' => $diskusage['total'],
@@ -100,11 +101,11 @@ final class BusyBoxTools extends OSTools
     {
         // BusyBox ps doesn't support -ax option
         $psall = $this->executor->execute('ps | wc -l');
-        $total = (int)($psall->stdout[0] ?? 0) - 3;
+        $total = (int) ($psall->stdout[0] ?? 0) - 3;
 
         if ($filter) {
             $psfilter = $this->executor->execute("ps | grep \"{$filter}\" | wc -l");
-            $nb = (int)($psfilter->stdout[0] ?? 0) - 1;
+            $nb = (int) ($psfilter->stdout[0] ?? 0) - 1;
         } else {
             $nb = $total;
         }

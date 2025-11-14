@@ -21,23 +21,27 @@ final class OSDetector
         // Check for Synology/BusyBox
         if (is_dir('/usr/syno/synoman/')) {
             self::$detectedOS = OSType::BUSYBOX;
+
             return self::$detectedOS;
         }
 
         // Check for Windows
         if (str_starts_with($osName, 'windows')) {
             self::$detectedOS = OSType::WINDOWS;
+
             return self::$detectedOS;
         }
 
         // Check for Darwin (macOS)
         if ($osName === 'darwin') {
             self::$detectedOS = OSType::DARWIN;
+
             return self::$detectedOS;
         }
 
         // Default to Linux
         self::$detectedOS = OSType::LINUX;
+
         return self::$detectedOS;
     }
 }

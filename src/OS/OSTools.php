@@ -13,11 +13,17 @@ abstract class OSTools
     ) {}
 
     abstract public function cpuload(): array;
+
     abstract public function cpuinfo(): array;
+
     abstract public function memusage(): array;
+
     abstract public function diskusage(string $path): array;
+
     abstract public function foldersize(string $path): array;
+
     abstract public function uptime(): string;
+
     abstract public function proccount(?string $filter): array;
 
     // Optional - not all OS support battery

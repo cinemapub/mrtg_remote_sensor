@@ -31,7 +31,7 @@ final class WindowsTools extends OSTools
         $cores = $this->wmic('cpu get NumberOfCores', 3600);
         $mhz = $this->wmic('cpu get MaxClockSpeed', 3600);
         $ghz = round($mhz / 1000, 1);
-        $bogomips = (int)($cores * $ghz * 1000);
+        $bogomips = (int) ($cores * $ghz * 1000);
 
         return [
             'cores' => $cores,
@@ -56,7 +56,7 @@ final class WindowsTools extends OSTools
     #[\Override]
     public function diskusage(string $path): array
     {
-        $disk = strtolower(substr($path, 0, 1) . ':');
+        $disk = strtolower(substr($path, 0, 1).':');
         $result = $this->executor->execute('wmic logicaldisk get size,freespace,caption');
 
         $free = 0;
@@ -64,7 +64,7 @@ final class WindowsTools extends OSTools
 
         foreach ($result->stdout as $line) {
             $line = strtolower(trim($line));
-            if (!str_contains($line, ' ')) {
+            if (! str_contains($line, ' ')) {
                 continue;
             }
 
@@ -76,16 +76,16 @@ final class WindowsTools extends OSTools
 
             $dname = $parts[0];
             if ($dname === $disk) {
-                $free = (int)$parts[1];
-                $total = (int)$parts[2];
+                $free = (int) $parts[1];
+                $total = (int) $parts[2];
                 break;
             }
         }
 
         return [
-            'total' => (int)round($total / 1000),
-            'free' => (int)round($free / 1000),
-            'used' => (int)round(($total - $free) / 1000),
+            'total' => (int) round($total / 1000),
+            'free' => (int) round($free / 1000),
+            'used' => (int) round(($total - $free) / 1000),
         ];
     }
 
@@ -102,7 +102,7 @@ final class WindowsTools extends OSTools
                 $obj = new \COM('scripting.filesystemobject');
                 if (is_object($obj)) {
                     $ref = $obj->getfolder($path);
-                    $size = (int)round($ref->size / 1000);
+                    $size = (int) round($ref->size / 1000);
                     $obj = null;
                 }
             } catch (\Throwable $e) {
@@ -121,18 +121,18 @@ final class WindowsTools extends OSTools
     public function uptime(): string
     {
         $lastboot = $this->wmicString('os get lastbootuptime', 3600);
-        $bdate = substr($lastboot, 0, 4) . '-' . substr($lastboot, 4, 2) . '-' . substr($lastboot, 6, 2) . ' ';
-        $bdate .= substr($lastboot, 8, 2) . ':' . substr($lastboot, 10, 2) . ':' . substr($lastboot, 12, 2);
+        $bdate = substr($lastboot, 0, 4).'-'.substr($lastboot, 4, 2).'-'.substr($lastboot, 6, 2).' ';
+        $bdate .= substr($lastboot, 8, 2).':'.substr($lastboot, 10, 2).':'.substr($lastboot, 12, 2);
 
         $btime = strtotime($bdate);
         $since = time() - $btime;
         $sincedays = $since / (3600 * 24);
 
         return match (true) {
-            $sincedays < 1 => round($since / 3600, 1) . ' hours',
-            $sincedays < 60 => round($since / (3600 * 24), 1) . ' days',
-            $sincedays < 365 => round($since / (3600 * 24 * 7), 1) . ' weeks',
-            default => round($since / (3600 * 24 * 365), 1) . ' years',
+            $sincedays < 1 => round($since / 3600, 1).' hours',
+            $sincedays < 60 => round($since / (3600 * 24), 1).' days',
+            $sincedays < 365 => round($since / (3600 * 24 * 7), 1).' weeks',
+            default => round($since / (3600 * 24 * 365), 1).' years',
         };
     }
 
@@ -166,7 +166,7 @@ final class WindowsTools extends OSTools
             return 0;
         }
 
-        return (int)trim($result->stdout[1]);
+        return (int) trim($result->stdout[1]);
     }
 
     private function wmicString(string $command, int $cacheSeconds = 30): string

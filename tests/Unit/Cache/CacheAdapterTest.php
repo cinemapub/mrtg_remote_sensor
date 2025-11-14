@@ -10,11 +10,12 @@ use PHPUnit\Framework\TestCase;
 final class CacheAdapterTest extends TestCase
 {
     private string $tempDir;
+
     private CacheAdapter $cache;
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir() . '/mrtg_test_' . uniqid();
+        $this->tempDir = sys_get_temp_dir().'/mrtg_test_'.uniqid();
         mkdir($this->tempDir);
         $this->cache = new CacheAdapter($this->tempDir);
     }
@@ -38,7 +39,7 @@ final class CacheAdapterTest extends TestCase
         @rmdir($this->tempDir);
     }
 
-    public function testSetAndGetReturnsValue(): void
+    public function test_set_and_get_returns_value(): void
     {
         $this->cache->set('test-key', 'test-group', 'test-value', 300);
         $result = $this->cache->get('test-key', 'test-group', 300);
@@ -46,13 +47,13 @@ final class CacheAdapterTest extends TestCase
         $this->assertSame('test-value', $result);
     }
 
-    public function testCacheTtlIsRespected(): void
+    public function test_cache_ttl_is_respected(): void
     {
         // Note: phpfastcache's TTL is handled internally by the library.
         // We test that items are cached with the correct TTL value.
         // The library handles expiration on disk, not in memory during the same request.
 
-        $uniqueKey = 'ttl-test-' . time();
+        $uniqueKey = 'ttl-test-'.time();
 
         // Set with 300 second TTL
         $setResult = $this->cache->set($uniqueKey, 'test-group', 'test-value', 300);
@@ -67,14 +68,14 @@ final class CacheAdapterTest extends TestCase
         $this->assertTrue(true, 'TTL is set and respected by phpfastcache');
     }
 
-    public function testGetReturnsNullForNonexistentKey(): void
+    public function test_get_returns_null_for_nonexistent_key(): void
     {
         $result = $this->cache->get('nonexistent', 'test');
 
         $this->assertNull($result);
     }
 
-    public function testSetAndGetArrayReturnsArray(): void
+    public function test_set_and_get_array_returns_array(): void
     {
         $testArray = ['key1' => 'value1', 'key2' => 'value2'];
         $this->cache->setArray('array-key', 'test-group', $testArray, 300);

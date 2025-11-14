@@ -10,6 +10,7 @@ final class DarwinTools extends OSTools
     public function cpuload(): array
     {
         $load = sys_getloadavg();
+
         return [
             '1min' => round($load[0], 3),
             '5min' => round($load[1], 3),
@@ -20,13 +21,44 @@ final class DarwinTools extends OSTools
     #[\Override]
     public function cpuinfo(): array
     {
-        $cores = $this->sysctl('hw.ncpu');
+        $cores = (int) $this->sysctl('hw.ncpu');
+
+        // Try hw.cpufrequency (Intel Macs)
         $freq = $this->sysctl('hw.cpufrequency');
-        $ghz = round($freq / 1000000000, 1);
-        $bogomips = (int)($cores * $ghz * 1000);
+
+        // If not available, try hw.cpufrequency_max (some Intel Macs)
+        if ($freq === 0) {
+            $freq = $this->sysctl('hw.cpufrequency_max');
+        }
+
+        // If still not available, parse from CPU brand string (Apple Silicon)
+        if ($freq === 0) {
+            $brandString = $this->executor->execute('sysctl -n machdep.cpu.brand_string');
+            if (count($brandString->stdout) > 0) {
+                $brand = $brandString->stdout[0];
+                // Try to extract frequency from brand string (e.g., "Intel Core i7 @ 2.6GHz")
+                if (preg_match('/(\d+\.?\d*)\s*GHz/i', $brand, $matches)) {
+                    $freq = (float) $matches[1] * 1000000000;
+                }
+            }
+        }
+
+        // For Apple Silicon, use a nominal frequency for bogomips calculation
+        // This is less accurate but provides a reasonable estimate
+        if ($freq === 0 && $cores > 0) {
+            $brandString = $this->executor->execute('sysctl -n machdep.cpu.brand_string');
+            if (count($brandString->stdout) > 0 && str_contains($brandString->stdout[0], 'Apple')) {
+                // Apple Silicon typically runs around 3-4 GHz
+                // Use 3.0 GHz as a conservative estimate
+                $freq = 3000000000;
+            }
+        }
+
+        $ghz = $freq > 0 ? round($freq / 1000000000, 1) : 0;
+        $bogomips = (int) ($cores * $ghz * 1000);
 
         return [
-            'cores' => (int)$cores,
+            'cores' => $cores,
             'ghz' => $ghz,
             'bogomips' => $bogomips,
         ];
@@ -35,14 +67,42 @@ final class DarwinTools extends OSTools
     #[\Override]
     public function memusage(): array
     {
-        $result = $this->executor->execute('free | grep Mem');
-        $line = preg_replace('/\s\s*/', "\t", trim($result->getFirstLine()));
-        $parts = explode("\t", $line);
+        // Get page size
+        $pageSize = (int) $this->sysctl('hw.pagesize');
+        if ($pageSize === 0) {
+            $pageSize = 4096; // Default page size
+        }
+
+        // Get total physical memory
+        $totalBytes = (int) $this->sysctl('hw.memsize');
+
+        // Parse vm_stat output to get free and active pages
+        $result = $this->executor->execute('vm_stat');
+        $free = 0;
+        $active = 0;
+        $inactive = 0;
+        $wired = 0;
+
+        foreach ($result->stdout as $line) {
+            if (preg_match('/Pages free:\s+(\d+)\./', $line, $matches)) {
+                $free = (int) $matches[1];
+            } elseif (preg_match('/Pages active:\s+(\d+)\./', $line, $matches)) {
+                $active = (int) $matches[1];
+            } elseif (preg_match('/Pages inactive:\s+(\d+)\./', $line, $matches)) {
+                $inactive = (int) $matches[1];
+            } elseif (preg_match('/Pages wired down:\s+(\d+)\./', $line, $matches)) {
+                $wired = (int) $matches[1];
+            }
+        }
+
+        // Calculate memory in bytes
+        $freeBytes = $free * $pageSize;
+        $usedBytes = ($active + $inactive + $wired) * $pageSize;
 
         return [
-            'free' => (int)($parts[3] ?? 0),
-            'used' => (int)($parts[2] ?? 0),
-            'total' => (int)($parts[1] ?? 0),
+            'free' => $freeBytes,
+            'used' => $usedBytes,
+            'total' => $totalBytes,
         ];
     }
 
@@ -58,8 +118,8 @@ final class DarwinTools extends OSTools
         $line = preg_replace('/\s\s*/', "\t", $stdout[1]);
         $parts = explode("\t", $line);
 
-        $blocks = (int)($parts[1] ?? 0);
-        $used = (int)($parts[2] ?? 0);
+        $blocks = (int) ($parts[1] ?? 0);
+        $used = (int) ($parts[2] ?? 0);
 
         return [
             'total' => $blocks * 1024,
@@ -75,7 +135,7 @@ final class DarwinTools extends OSTools
         $result = $this->executor->execute("du -sk \"{$path}\"", null, 3600);
         $line = preg_replace('/\s\s*/', "\t", $result->getFirstLine());
         $parts = explode("\t", $line);
-        $size = (int)($parts[0] ?? 0);
+        $size = (int) ($parts[0] ?? 0);
 
         return [
             'total' => $diskusage['total'],
@@ -107,11 +167,11 @@ final class DarwinTools extends OSTools
     public function proccount(?string $filter): array
     {
         $psall = $this->executor->execute('ps -ax | wc -l');
-        $total = (int)($psall->stdout[0] ?? 0) - 3;
+        $total = (int) ($psall->stdout[0] ?? 0) - 3;
 
         if ($filter) {
             $psfilter = $this->executor->execute("ps -ax | grep \"{$filter}\" | wc -l");
-            $nb = (int)($psfilter->stdout[0] ?? 0) - 1;
+            $nb = (int) ($psfilter->stdout[0] ?? 0) - 1;
         } else {
             $nb = $total;
         }
@@ -125,7 +185,7 @@ final class DarwinTools extends OSTools
     #[\Override]
     public function battery(): ?array
     {
-        if (!file_exists('/usr/sbin/system_profiler')) {
+        if (! file_exists('/usr/sbin/system_profiler')) {
             return null;
         }
 
@@ -160,7 +220,8 @@ final class DarwinTools extends OSTools
         }
 
         $parts = explode(':', $result->stdout[0], 2);
-        return isset($parts[1]) ? (float)trim($parts[1]) : 0;
+
+        return isset($parts[1]) ? (float) trim($parts[1]) : 0;
     }
 
     private function parseProfiler(array $lines): array
@@ -201,7 +262,7 @@ final class DarwinTools extends OSTools
     private function findVal(string $pattern, array $subject): string|int
     {
         $results = preg_grep("/{$pattern}/", $subject);
-        if (!$results) {
+        if (! $results) {
             return '';
         }
 
@@ -218,7 +279,7 @@ final class DarwinTools extends OSTools
     private function findBool(string $pattern, array $subject): int
     {
         $results = preg_grep("/{$pattern}/", $subject);
-        if (!$results) {
+        if (! $results) {
             return 0;
         }
 
@@ -226,6 +287,7 @@ final class DarwinTools extends OSTools
             $parts = explode(':', $result, 2);
             if (count($parts) === 2) {
                 $val = strtoupper(trim($parts[1]));
+
                 return match ($val) {
                     '1', 'TRUE', 'YES', 'OUI' => 1,
                     default => str_starts_with($val, 'N') ? 0 : 1,

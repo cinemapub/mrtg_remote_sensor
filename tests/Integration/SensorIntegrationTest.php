@@ -6,9 +6,12 @@ namespace MrtgSensor\Tests\Integration;
 
 use MrtgSensor\Cache\CacheAdapter;
 use MrtgSensor\Command\CommandExecutor;
-use MrtgSensor\OS\OSDetector;
-use MrtgSensor\OS\{LinuxTools, DarwinTools, WindowsTools, BusyBoxTools};
 use MrtgSensor\Enum\OSType;
+use MrtgSensor\OS\BusyBoxTools;
+use MrtgSensor\OS\DarwinTools;
+use MrtgSensor\OS\LinuxTools;
+use MrtgSensor\OS\OSDetector;
+use MrtgSensor\OS\WindowsTools;
 use MrtgSensor\Sensor\Sensor;
 use PHPUnit\Framework\TestCase;
 
@@ -18,11 +21,11 @@ final class SensorIntegrationTest extends TestCase
 
     protected function setUp(): void
     {
-        $cache = new CacheAdapter(sys_get_temp_dir() . '/mrtg_cache');
+        $cache = new CacheAdapter(sys_get_temp_dir().'/mrtg_cache');
         $executor = new CommandExecutor($cache, false);
 
         $osType = OSDetector::detect();
-        $osTools = match($osType) {
+        $osTools = match ($osType) {
             OSType::WINDOWS => new WindowsTools($executor),
             OSType::DARWIN => new DarwinTools($executor),
             OSType::BUSYBOX => new BusyBoxTools($executor),
@@ -32,7 +35,7 @@ final class SensorIntegrationTest extends TestCase
         $this->sensor = new Sensor($osTools, 'testserver', '/test.php', false);
     }
 
-    public function testCpuUsageReturnsValidResult(): void
+    public function test_cpu_usage_returns_valid_result(): void
     {
         $result = $this->sensor->cpuusage();
 
@@ -42,7 +45,7 @@ final class SensorIntegrationTest extends TestCase
         $this->assertNotEmpty($result->description);
     }
 
-    public function testMemoryUsageReturnsValidResult(): void
+    public function test_memory_usage_returns_valid_result(): void
     {
         $result = $this->sensor->memusage();
 
@@ -51,7 +54,7 @@ final class SensorIntegrationTest extends TestCase
         $this->assertNotEmpty($result->description);
     }
 
-    public function testDiskUsageReturnsValidResult(): void
+    public function test_disk_usage_returns_valid_result(): void
     {
         $result = $this->sensor->diskusage('.');
 

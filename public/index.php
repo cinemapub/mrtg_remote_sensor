@@ -2,25 +2,30 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use MrtgSensor\Cache\CacheAdapter;
 use MrtgSensor\Command\CommandExecutor;
+use MrtgSensor\Enum\OSType;
+use MrtgSensor\Enum\SensorType;
 use MrtgSensor\Http\Request;
 use MrtgSensor\Http\Response;
+use MrtgSensor\OS\BusyBoxTools;
+use MrtgSensor\OS\DarwinTools;
+use MrtgSensor\OS\LinuxTools;
 use MrtgSensor\OS\OSDetector;
-use MrtgSensor\OS\{BusyBoxTools, DarwinTools, LinuxTools, WindowsTools};
-use MrtgSensor\Enum\{OSType, SensorType};
-use MrtgSensor\Sensor\{Sensor, MrtgFormatter};
+use MrtgSensor\OS\WindowsTools;
+use MrtgSensor\Sensor\MrtgFormatter;
+use MrtgSensor\Sensor\Sensor;
 
 // Initialize dependencies
 $debug = isset($_GET['debug']);
-$cache = new CacheAdapter(__DIR__ . '/../var/cache');
+$cache = new CacheAdapter(__DIR__.'/../var/cache');
 $executor = new CommandExecutor($cache, $debug);
 
 // Detect OS and create appropriate OS tools
 $osType = OSDetector::detect();
-$osTools = match($osType) {
+$osTools = match ($osType) {
     OSType::WINDOWS => new WindowsTools($executor),
     OSType::DARWIN => new DarwinTools($executor),
     OSType::BUSYBOX => new BusyBoxTools($executor),
@@ -53,7 +58,7 @@ if ($sensorType === null) {
 
 // Execute sensor
 try {
-    $result = match($sensorType) {
+    $result = match ($sensorType) {
         SensorType::CPU => $sensor->cpuusage(),
         SensorType::CPU_PERCENT => $sensor->cpuusage(true),
         SensorType::MEMORY => $sensor->memusage(),

@@ -31,6 +31,7 @@ final class CommandExecutor
                 if ($this->debug) {
                     error_log("[CommandExecutor] Cache hit: {$fullCommand}");
                 }
+
                 return new CommandResult($cached);
             }
         }
@@ -41,7 +42,7 @@ final class CommandExecutor
         exec($fullCommand, $stdout, $exitCode);
 
         if ($this->debug) {
-            error_log("[CommandExecutor] Executed: {$fullCommand} (" . count($stdout) . " lines)");
+            error_log("[CommandExecutor] Executed: {$fullCommand} (".count($stdout).' lines)');
         }
 
         // Cache result

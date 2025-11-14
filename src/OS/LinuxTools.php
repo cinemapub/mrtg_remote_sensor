@@ -10,6 +10,7 @@ final class LinuxTools extends OSTools
     public function cpuload(): array
     {
         $load = sys_getloadavg();
+
         return [
             '1min' => round($load[0], 3),
             '5min' => round($load[1], 3),
@@ -21,7 +22,7 @@ final class LinuxTools extends OSTools
     public function cpuinfo(): array
     {
         // Try to read /proc/cpuinfo if available
-        if (!is_readable('/proc/cpuinfo')) {
+        if (! is_readable('/proc/cpuinfo')) {
             return ['cores' => 1, 'ghz' => 1.0, 'bogomips' => 1000];
         }
 
@@ -36,9 +37,9 @@ final class LinuxTools extends OSTools
         $ghz = round($cpuMhz / 1000, 1);
 
         return [
-            'cores' => (int)$numcores,
+            'cores' => (int) $numcores,
             'ghz' => $ghz,
-            'bogomips' => (int)(round($bogomips / 10) * 10),
+            'bogomips' => (int) (round($bogomips / 10) * 10),
         ];
     }
 
@@ -50,9 +51,9 @@ final class LinuxTools extends OSTools
         $parts = explode("\t", $line);
 
         return [
-            'free' => (int)($parts[3] ?? 0),
-            'used' => (int)($parts[2] ?? 0),
-            'total' => (int)($parts[1] ?? 0),
+            'free' => (int) ($parts[3] ?? 0),
+            'used' => (int) ($parts[2] ?? 0),
+            'total' => (int) ($parts[1] ?? 0),
         ];
     }
 
@@ -68,8 +69,8 @@ final class LinuxTools extends OSTools
         $line = preg_replace('/\s\s*/', "\t", $stdout[1]);
         $parts = explode("\t", $line);
 
-        $blocks = (int)($parts[1] ?? 0);
-        $used = (int)($parts[2] ?? 0);
+        $blocks = (int) ($parts[1] ?? 0);
+        $used = (int) ($parts[2] ?? 0);
 
         return [
             'total' => $blocks * 1024,
@@ -85,7 +86,7 @@ final class LinuxTools extends OSTools
         $result = $this->executor->execute("du -sk \"{$path}\"", null, 3600);
         $line = preg_replace('/\s\s*/', "\t", $result->getFirstLine());
         $parts = explode("\t", $line);
-        $size = (int)($parts[0] ?? 0);
+        $size = (int) ($parts[0] ?? 0);
 
         return [
             'total' => $diskusage['total'],
@@ -117,11 +118,11 @@ final class LinuxTools extends OSTools
     public function proccount(?string $filter): array
     {
         $psall = $this->executor->execute('ps -ax | wc -l');
-        $total = (int)($psall->stdout[0] ?? 0) - 3;
+        $total = (int) ($psall->stdout[0] ?? 0) - 3;
 
         if ($filter) {
             $psfilter = $this->executor->execute("ps -ax | grep \"{$filter}\" | wc -l");
-            $nb = (int)($psfilter->stdout[0] ?? 0) - 1;
+            $nb = (int) ($psfilter->stdout[0] ?? 0) - 1;
         } else {
             $nb = $total;
         }
@@ -134,7 +135,7 @@ final class LinuxTools extends OSTools
 
     private function grepCpuInfo(string $param, float|int $default): float|int
     {
-        if (!is_readable('/proc/cpuinfo')) {
+        if (! is_readable('/proc/cpuinfo')) {
             return $default;
         }
 
@@ -148,6 +149,6 @@ final class LinuxTools extends OSTools
             }
         }
 
-        return is_numeric($val) ? (float)$val : $default;
+        return is_numeric($val) ? (float) $val : $default;
     }
 }
